@@ -24,7 +24,7 @@ public class AprilTagTest extends LinearOpMode {
             int myAprilTagIdCode;
 
             detections = processor.getDetections();
-
+            
             for (AprilTagDetection detection: detections) {
 
                 if (detection.metadata != null) {
