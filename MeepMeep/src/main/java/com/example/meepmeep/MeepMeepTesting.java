@@ -10,12 +10,27 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 public class MeepMeepTesting {
     public static void main(String[] args){
         MeepMeep meepMeep = new MeepMeep(400);
-        Pose2d beginPose = new Pose2d(0, 0, 0);
+        Pose2d beginPose = new Pose2d(-52, 56, 0);
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 16)
                 .build();
         bot.runAction(bot.getDrive().actionBuilder(beginPose)
-                .strafeTo(new Vector2d(70,70))
+                        .splineTo(new Vector2d(-48, 24), Math.toRadians(225))
+                        .waitSeconds(0.5)
+                        .splineTo(new Vector2d(-12, 38), Math.toRadians(90))
+                        .waitSeconds(1)
+                        .splineTo(new Vector2d(-24,24), Math.toRadians(135))
+                        .waitSeconds(1)
+                        .splineTo(new Vector2d(12, 38), Math.toRadians(90))
+                        .waitSeconds(1)
+                        .splineTo(new Vector2d(-24, 24), Math.toRadians(135))
+                        .waitSeconds(1)
+                        .splineTo(new Vector2d(38,38), Math.toRadians(90))
+                        .waitSeconds(1)
+                        .splineTo(new Vector2d(-24,24), Math.toRadians(135))
+
+
+
                 .build());
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
                 .setDarkMode(true)
