@@ -13,7 +13,7 @@ public class autotest extends LinearOpMode {
 
         waitForStart();
 
-        Action driveAction = drive.actionBuilder(new Pose2d(0,0,0));
+        Action driveAction = drive.actionBuilder(new Pose2d(0,0,0))
         .splineTo(new Vector2d(-48, 24), Math.toRadians(225))
                 .waitSeconds(0.5)
                 .splineTo(new Vector2d(-12, 38), Math.toRadians(90))
@@ -27,7 +27,7 @@ public class autotest extends LinearOpMode {
                 .splineTo(new Vector2d(38,38), Math.toRadians(90))
                 .waitSeconds(1)
                 .splineTo(new Vector2d(-24,24), Math.toRadians(135))
-                .build
+                .build();
 
         Actions.runBlocking(driveAction);
 
