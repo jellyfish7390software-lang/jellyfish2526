@@ -24,6 +24,7 @@ public class AprilTagTest extends LinearOpMode {
 
         waitForStart();
 
+
         while (opModeIsActive()) {
 
             List<AprilTagDetection> detections;
