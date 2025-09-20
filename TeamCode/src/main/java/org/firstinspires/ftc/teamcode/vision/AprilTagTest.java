@@ -19,6 +19,8 @@ import java.util.List;
 @Autonomous
 public class AprilTagTest extends LinearOpMode {
 
+    
+
     @Override
     public void runOpMode() throws InterruptedException {
         AprilTagProcessor processor = AprilTagProcessor.easyCreateWithDefaults();
@@ -60,6 +62,8 @@ public class AprilTagTest extends LinearOpMode {
                     telemetry.addData("poseAX", poseAX);
                     telemetry.addData("poseAY", poseAY);
                     telemetry.addData("poseAZ", poseAZ);
+
+                    double bearing = detection.ftcPose.bearing;
 
 
                 }
