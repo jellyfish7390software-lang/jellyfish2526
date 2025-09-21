@@ -37,6 +37,7 @@ public class AprilTagTest extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+
             List<AprilTagDetection> detections;
             int myAprilTagIdCode;
 
