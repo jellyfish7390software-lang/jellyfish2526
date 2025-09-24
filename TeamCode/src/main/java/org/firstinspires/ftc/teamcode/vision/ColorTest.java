@@ -21,7 +21,7 @@ public class ColorTest extends LinearOpMode {
         int[] portals = VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL);
 
         PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
+                .setRoi(ImageRegion.asImageCoordinates(0, 120, 320, 240))
                 .setSwatches(
                         PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                         PredominantColorProcessor.Swatch.ARTIFACT_PURPLE)
@@ -36,7 +36,7 @@ public class ColorTest extends LinearOpMode {
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
-        
+
         VisionPortal tag = new VisionPortal.Builder()
                 .addProcessor(tagSensor)
                 .setLiveViewContainerId(portals[1])
@@ -45,9 +45,8 @@ public class ColorTest extends LinearOpMode {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
-        waitForStart();
 
-        while (opModeIsActive() && !isStopRequested()) {
+        while (opModeIsActive() || opModeInInit()) {
             PredominantColorProcessor.Result result = colorSensor.getAnalysis();
 
             for (AprilTagDetection detection: tagSensor.getDetections()) {
