@@ -11,8 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 public class IntakeTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot bot = new Robot();
-        bot.config(hardwareMap);
+        Robot bot = new Robot(hardwareMap);
 
         bot.rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
