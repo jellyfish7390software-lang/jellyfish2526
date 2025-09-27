@@ -21,7 +21,6 @@ import java.util.List;
 @Autonomous
 public class AprilTagTest extends LinearOpMode {
 
-
     @Override
     public void runOpMode() throws InterruptedException {
         AprilTagProcessor processor = AprilTagProcessor.easyCreateWithDefaults();
