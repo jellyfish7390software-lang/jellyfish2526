@@ -11,7 +11,7 @@ public class MeepMeepTesting {
         public static void main(String[] args){
             MeepMeep meepMeep = new MeepMeep(400);
 
-            // TOP bot (original path, y > 0)
+            // TOP bot (Blue Side))
             Pose2d beginPoseTop = new Pose2d(-52, 56, 0);
             RoadRunnerBotEntity botTop = new DefaultBotBuilder(meepMeep)
                     .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 16)
@@ -32,7 +32,7 @@ public class MeepMeepTesting {
                     .splineTo(new Vector2d(-24, 24), Math.toRadians(135))
                     .build());
 
-            // BOTTOM bot (mirrored across x-axis: y -> -y, heading -> -heading)
+            // BOTTOM bot (Red Side)
             Pose2d beginPoseBottom = new Pose2d(-52, -56, 0);
             RoadRunnerBotEntity botBottom = new DefaultBotBuilder(meepMeep)
                     .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 16)
