@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -17,7 +20,7 @@ public class Robot {
     public WebcamName ballCam, tagCam;
 
     public Robot(HardwareMap hardwareMap) {
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
 //        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
 //        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
@@ -29,10 +32,33 @@ public class Robot {
         tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 
 
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
     }
 
+    public void arcadeDrive(Gamepad gamepad1) {
+        double y = gamepad1.left_stick_y;
+        double x = -gamepad1.left_stick_x;
+        double rx = -0.75 * gamepad1.right_stick_x;
 
+        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-y, x), rx));
+    }
+
+    public void arcadeDriveWithSlowMode(Gamepad gamepad) {
+        double y,x,rx;
+        if (gamepad.right_trigger > 0) {
+            y = 0.5*gamepad.left_stick_y;
+            x = -0.5*gamepad.left_stick_x;
+            rx = -0.5*gamepad.right_stick_x;
+        }
+        else {
+            y = gamepad.left_stick_y;
+            x = -gamepad.left_stick_x;
+            rx = -0.75*gamepad.right_stick_x;
+        }
+
+        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(x,y), rx));
+    }
 }
