@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,12 +21,18 @@ public class Robot {
 
 //        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
 //        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
-//        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 //
 //        diverter = hardwareMap.get(Servo.class, "diverter");
 
         ballCam = hardwareMap.get(WebcamName.class, "ballCam");
         tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 
+
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
     }
+
+
 }
