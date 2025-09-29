@@ -13,7 +13,6 @@ public class IntakeTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
 
-        bot.rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
 
 
