@@ -21,7 +21,7 @@ public class ShooterTest extends LinearOpMode {
 
     public static double ticksPerRev = 27.0;
 
-    public static double p = 3, i = 0, d = 0, f = 14.5;
+    public static double p = 10, i = 0, d = 0, f = 12;
 
     public static double power = 0.0;
 
