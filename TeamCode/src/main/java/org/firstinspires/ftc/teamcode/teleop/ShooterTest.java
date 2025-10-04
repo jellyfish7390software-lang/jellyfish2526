@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -16,14 +19,19 @@ public class ShooterTest extends LinearOpMode {
 
     public double vel;
 
-    public static double ticksPerRev = 1.0;
+    public static double ticksPerRev = 27.0;
 
-    public static double p = 0, i = 0, d = 0, f = 0;
+    public static double p = 3, i = 0, d = 0, f = 14.5;
+
+    public static double power = 0.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
+
         bot.shooter.setVelocityPIDFCoefficients(p, i, d, f);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
 
@@ -34,7 +42,11 @@ public class ShooterTest extends LinearOpMode {
 
             bot.shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
 
+//            bot.shooter.setPower(power);
+
             telemetry.addData("Velocity: RPM", vel*60);
+            telemetry.addData("Target Velocity", targetVel);
+            telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
             telemetry.update();
         }
 
