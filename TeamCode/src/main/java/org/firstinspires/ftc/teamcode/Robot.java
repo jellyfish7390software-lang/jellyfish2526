@@ -37,8 +37,8 @@ public class Robot {
     public Robot(HardwareMap hardwareMap) {
 //        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-//        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
-//        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
+        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
+        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         diverter = hardwareMap.get(CRServo.class,"diverter");
 //
