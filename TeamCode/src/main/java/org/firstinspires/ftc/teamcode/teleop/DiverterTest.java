@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 @TeleOp
 public class DiverterTest extends LinearOpMode {
 
+public static double power = 0.7;
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -27,7 +28,10 @@ public class DiverterTest extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             //bot.diverter.setPower((double) (gamepad1.right_stick_y));
-            bot.diverter.setPower(0.7);
+            bot.diverter.setPower(power);
+
+            telemetry.addData("Power: ", power);
+            telemetry.update();
 
         }
     }
