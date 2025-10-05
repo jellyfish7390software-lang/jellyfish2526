@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -12,13 +13,24 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.List;
+
+@Config
 public class Robot {
 
     public MecanumDrive drive;
     public DcMotorEx leftIntake, rightIntake, shooter;
     public Servo diverter;
     public WebcamName ballCam, tagCam;
+    public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+    public List<AprilTagDetection> detections;
+
+    public static double TAG_HEIGHT = 38.75-9.25;
+    public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
+    public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
     public Robot(HardwareMap hardwareMap) {
 //        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
@@ -65,4 +77,51 @@ public class Robot {
 
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(x,y), rx));
     }
+
+    //TODO: AprilTag Code
+
+    public Pose2d getBotPose() {
+        detections = tagProcessor.getDetections();
+        if (detections.isEmpty()) return drive.localizer.getPose();
+
+        for (AprilTagDetection tag : detections) {
+            if (tag.id == 20 || tag.id == 24) {
+                double r = get2dRange(tag);
+
+
+                double theta = tag.ftcPose.bearing; //TODO: check if radians
+                double imuHeading = drive.localizer.getPose().heading.toDouble();
+
+                Vector2d tagPos = (tag.id == 20) ? BLUE_GOAL_TAG : RED_GOAL_TAG;
+
+                double dx = r * Math.cos(theta + imuHeading);
+                double dy = r * Math.sin(theta + imuHeading);
+
+                double camX = tagPos.x - dx;
+                double camY = tagPos.y - dy;
+
+                double cx = 0; // forward offset from robot center
+                double cy = 0; // left offset from robot center
+
+                double offsetX = cx * Math.cos(imuHeading) - cy * Math.sin(imuHeading);
+                double offsetY = cx * Math.sin(imuHeading) + cy * Math.cos(imuHeading);
+
+                double rx = camX - offsetX;
+                double ry = camY - offsetY;
+
+                return new Pose2d(rx, ry, imuHeading);
+            }
+        }
+        return drive.localizer.getPose();
+    }
+
+
+
+    public double get2dRange(AprilTagDetection detection) {
+        if (detection.metadata != null) {
+            return Math.sqrt(Math.pow(detection.ftcPose.range, 2) - Math.pow(TAG_HEIGHT, 2));
+        }
+        return 0;
+    }
+
 }
