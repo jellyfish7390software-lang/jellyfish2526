@@ -24,6 +24,8 @@ public class ShooterTest extends LinearOpMode {
     public static double p = 10, i = 0, d = 0, f = 12;
 
     public static double power = 0.0;
+    public static double leftPower = 0, rightPower = 0;
+    public static double diverterPos = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,11 +44,15 @@ public class ShooterTest extends LinearOpMode {
 
             bot.shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
 
+            bot.leftIntake.setPower(leftPower);
+            bot.rightIntake.setPower(rightPower);
+
 //            bot.shooter.setPower(power);
 
             telemetry.addData("Velocity: RPM", vel*60);
             telemetry.addData("Target Velocity", targetVel);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
+            telemetry.addData("Shooter Power", bot.shooter.getPower());
             telemetry.update();
         }
 
