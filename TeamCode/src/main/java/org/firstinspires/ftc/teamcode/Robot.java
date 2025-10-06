@@ -36,23 +36,23 @@ public class Robot {
 
     public Robot(HardwareMap hardwareMap) {
 //        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
-        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
-        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-        diverter = hardwareMap.get(CRServo.class,"diverter");
+//
+//        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
+//        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
+//        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+//        diverter = hardwareMap.get(CRServo.class,"diverter");
 //
 //        diverter = hardwareMap.get(Servo.class, "diverter");
-
+//
 //        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
-//        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
-
+        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
+//
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+//
+//        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
     }
@@ -83,7 +83,7 @@ public class Robot {
 
     //TODO: AprilTag Code
 
-    public Pose2d getBotPose() {
+    public Pose2d getBotPose(MecanumDrive drive) {
         detections = tagProcessor.getDetections();
         if (detections.isEmpty()) return drive.localizer.getPose();
 
@@ -91,8 +91,7 @@ public class Robot {
             if (tag.id == 20 || tag.id == 24) {
                 double r = get2dRange(tag);
 
-
-                double theta = tag.ftcPose.bearing; //TODO: check if radians
+                double theta = Math.toRadians(tag.ftcPose.bearing); //TODO: check if radians
                 double imuHeading = drive.localizer.getPose().heading.toDouble();
 
                 Vector2d tagPos = (tag.id == 20) ? BLUE_GOAL_TAG : RED_GOAL_TAG;
@@ -117,7 +116,6 @@ public class Robot {
         }
         return drive.localizer.getPose();
     }
-
 
 
     public double get2dRange(AprilTagDetection detection) {
