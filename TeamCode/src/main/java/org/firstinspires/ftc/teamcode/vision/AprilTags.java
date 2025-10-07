@@ -33,7 +33,7 @@ public class AprilTags extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             List<AprilTagDetection> myAprilTagDetections;  // list of all detections
                   // current detection in for() loop
-            int myAprilTagIdCode;                           // ID code of current detection, in for() loop
+            int myAprilTagIdCode = 0;                           // ID code of current detection, in for() loop
 
 // Get a list of AprilTag detections.
             myAprilTagDetections = myAprilTagProcessor.getDetections();
@@ -49,6 +49,21 @@ public class AprilTags extends LinearOpMode {
                 }
             }
         telemetry.update();
+            if (myAprilTagIdCode == 21) {
+                telemetry.addLine("green, purple, purple");
+                telemetry.update();
+            }
+            if (myAprilTagIdCode == 22) {
+                telemetry.addLine("purple, green, purple");
+                telemetry.update();
+            }
+            if (myAprilTagIdCode == 23) {
+                telemetry.addLine("purple, purple, green");
+                telemetry.update();
+            }
+
+
+
         }
 
     }
