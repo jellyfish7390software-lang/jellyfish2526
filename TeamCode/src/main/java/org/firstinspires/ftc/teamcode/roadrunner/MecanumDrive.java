@@ -69,8 +69,8 @@ public final class MecanumDrive {
 
         // feedforward parameters (in tick units)
         public double kS = 1.5256224486389196;
-        public double kV = 0.000269237689955236;
-        public double kA = 0;
+        public double kV = 0.00025;
+        public double kA = 0.00003;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
