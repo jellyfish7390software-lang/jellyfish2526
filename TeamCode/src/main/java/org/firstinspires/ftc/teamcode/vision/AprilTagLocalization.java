@@ -17,7 +17,7 @@ public class AprilTagLocalization extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(36, -48, 0));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(24, 36, Math.toRadians(180)));
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
