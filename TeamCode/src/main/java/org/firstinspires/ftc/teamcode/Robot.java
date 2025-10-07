@@ -25,7 +25,8 @@ public class Robot {
 
     public MecanumDrive drive;
     public DcMotorEx leftIntake, rightIntake, shooter;
-    public CRServo diverter;
+    public CRServo indexer;
+    public Servo diverter;
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
@@ -37,25 +38,32 @@ public class Robot {
     public Robot(HardwareMap hardwareMap) {
 //        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 //
-//        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
-//        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
-//        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-//        diverter = hardwareMap.get(CRServo.class,"diverter");
-//
-//        diverter = hardwareMap.get(Servo.class, "diverter");
-//
+        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
+        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        indexer = hardwareMap.get(CRServo.class,"indexer");
+
+        diverter = hardwareMap.get(Servo.class, "diverter");
+
 //        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
-        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
+//        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 //
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 //
-//        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
     }
+
+//    public void purplePath() {
+//        diverter.setPosition(0.8);
+//    }
+//    public void greenPath() {
+//        diverter.setPosition(1);
+//    }
 
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;
