@@ -29,6 +29,8 @@ public class TeleTest extends LinearOpMode {
 
     public static double diverterPos = 0;
 
+    public static double transferPower = 0.0;
+
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
@@ -53,11 +55,16 @@ public class TeleTest extends LinearOpMode {
 //
             bot.shooter.setPower(shooterPower);
 
+            bot.transfer.setPower(transferPower);
+
             telemetry.addData("Velocity: RPM", vel*60);
             telemetry.addData("Target Velocity", targetVel);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
             telemetry.addData("Shooter Power", bot.shooter.getPower());
+            telemetry.addData("Transfer Power: ", transferPower);
             telemetry.update();
+
+            
         }
 
 

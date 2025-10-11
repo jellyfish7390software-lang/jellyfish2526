@@ -21,7 +21,7 @@ public static double power = 0.7;
 
         while (opModeIsActive() && !isStopRequested()) {
             //bot.diverter.setPower((double) (gamepad1.right_stick_y));
-            bot.indexer.setPower(power);
+           // bot.indexer.setPower(power);
 
             telemetry.addData("Power: ", power);
             telemetry.update();

@@ -25,7 +25,7 @@ public class Robot {
 
     public MecanumDrive drive;
     public DcMotorEx leftIntake, rightIntake, shooter;
-    public CRServo indexer;
+    public CRServo transfer;
     public Servo diverter;
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
@@ -44,6 +44,7 @@ public class Robot {
       //  indexer = hardwareMap.get(CRServo.class,"indexer");
 
         diverter = hardwareMap.get(Servo.class, "diverter");
+        transfer = hardwareMap.get(CRServo.class, "transfer");
 
 //        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
        // tagCam = hardwareMap.get(WebcamName.class, "tagCam");

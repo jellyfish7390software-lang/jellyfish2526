@@ -30,7 +30,7 @@
             <goBILDA5202SeriesMotor name="right" port="3" />
             <!-- Servos -->
             <Servo name="diverter" port="0" />
-            <!--            <Servo name="headlight" port="1"/>-->
+                        <ContinuousRotationServo name="transfer" port="5"/>
             <!--            <Servo name="rightSweeper" port="2" />-->
             <!--            <Servo name="wrist" port="3" />-->
             <!--            <Servo name="leftPitch" port="4" />-->
