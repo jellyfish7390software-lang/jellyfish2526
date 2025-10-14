@@ -25,7 +25,7 @@ public class Robot {
 
     public MecanumDrive drive;
     public DcMotorEx leftIntake, rightIntake, shooter;
-    public CRServo transfer;
+    public DcMotorEx transfer;
     public Servo diverter;
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
@@ -36,7 +36,7 @@ public class Robot {
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
     public Robot(HardwareMap hardwareMap) {
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+//        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
         rightIntake = hardwareMap.get(DcMotorEx.class, "right");
@@ -44,7 +44,7 @@ public class Robot {
       //  indexer = hardwareMap.get(CRServo.class,"indexer");
 
         diverter = hardwareMap.get(Servo.class, "diverter");
-        transfer = hardwareMap.get(CRServo.class, "transfer");
+        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
 //        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
        // tagCam = hardwareMap.get(WebcamName.class, "tagCam");
@@ -55,6 +55,10 @@ public class Robot {
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        transfer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
     }

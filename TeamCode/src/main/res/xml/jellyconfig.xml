@@ -14,7 +14,7 @@
             <!--            <Servo name="rightPitch" port="4" />-->
             <!-- I2C -->
                         <LynxEmbeddedIMU name="imu" bus="0" port="0" />
-            <!--            <goBILDAPinpointRR name="odo" bus="0" port="1" />-->
+                        <goBILDAPinpointRR name="pinpoint" bus="0" port="1" />
 
 
             <!--            <RevColorSensorV3 name="colorSensorLeft" bus="1" port="0" />-->
@@ -24,13 +24,12 @@
         </LynxModule>
         <LynxModule name="Expansion Hub 2" port="2">
             <!-- Motors -->
-            <goBILDA5202SeriesMotor name="shooter" port="0" />
+            <goBILDA5202SeriesMotor name="transfer" port="0" />
             <goBILDA5202SeriesMotor name="left" port="1" />
-            <!--            <goBILDA5202SeriesMotor name="br" port="2" />-->
+            <goBILDA5202SeriesMotor name="shooter" port="2" />
             <goBILDA5202SeriesMotor name="right" port="3" />
             <!-- Servos -->
             <Servo name="diverter" port="0" />
-                        <ContinuousRotationServo name="transfer" port="5"/>
             <!--            <Servo name="rightSweeper" port="2" />-->
             <!--            <Servo name="wrist" port="3" />-->
             <!--            <Servo name="leftPitch" port="4" />-->
