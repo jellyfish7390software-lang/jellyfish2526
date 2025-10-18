@@ -31,7 +31,7 @@ public class TeleTest extends LinearOpMode {
 
     public static double shooterPower = 0.0;
 
-    public static double diverterPos = 0;
+   // public static double diverterPos = 0;
 
     public static int transferPos = 0;
     public static double transferPower = 0.0;
@@ -80,9 +80,31 @@ public class TeleTest extends LinearOpMode {
             transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), transferPos);
             bot.transfer.setPower(transferPower);
 
-            bot.diverter.setPosition(diverterPos);
+          //  bot.diverter.setPosition(diverterPos);
 //
             bot.shooter.setPower(shooterPower);
+
+            if (gamepad1.bWasPressed()) {
+
+                bot.leftIntake.setPower(-1);
+                bot.rightIntake.setPower(1);
+
+                bot.shooter.setPower(-1.0);
+
+                bot.transfer.setPower(1.0);
+
+            }
+
+            if (gamepad1.yWasPressed()) {
+
+                bot.leftIntake.setPower(0);
+                bot.rightIntake.setPower(0);
+
+                bot.shooter.setPower(0);
+
+                bot.transfer.setPower(0);
+
+            }
 
             telemetry.addData("Velocity: RPM", vel*60);
             telemetry.addData("Target Velocity", targetVel);

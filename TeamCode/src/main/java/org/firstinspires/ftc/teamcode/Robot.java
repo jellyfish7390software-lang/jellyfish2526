@@ -43,7 +43,7 @@ public class Robot {
        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
       //  indexer = hardwareMap.get(CRServo.class,"indexer");
 
-        diverter = hardwareMap.get(Servo.class, "diverter");
+        //diverter = hardwareMap.get(Servo.class, "diverter");
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 
 //        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
