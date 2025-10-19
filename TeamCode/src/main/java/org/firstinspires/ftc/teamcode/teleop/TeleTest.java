@@ -59,7 +59,7 @@ public class TeleTest extends LinearOpMode {
             vel = bot.shooter.getVelocity() / ticksPerRev;
 
             bot.shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
-//
+
             if (gamepad1.bWasPressed()) {
                 bIndex++;
             }
