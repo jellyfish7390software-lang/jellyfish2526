@@ -23,16 +23,17 @@ public class TeleTest extends LinearOpMode {
 
     public static double ticksPerRev = 27.0;
 
-    public static double p = 10, i = 0, d = 0, f = 12;
+    public static double p = 10, i = 0, d = 0, f = 13.25;
 
-    public static double tP = 0, tI = 0, tD = 0;
+    public static double tP = -0.001, tI = 0, tD = 0;
 
-    public static double power = 0.0;
+    public static double power = 1.0;
 
     public static double shooterPower = 0.0;
 
    // public static double diverterPos = 0;
 
+    public static int shootingVel = 3900;
     public static int transferPos = 0;
     public static double transferPower = 0.0;
     public PIDController transferPID;
@@ -50,9 +51,12 @@ public class TeleTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
+//            bot.arcadeDrive(gamepad1);
+
             transferPID.setPID(tP, tI, tD);
 
-            targetVel = 6000*gamepad1.right_trigger;
+            if (gamepad1.right_trigger > 0) targetVel = shootingVel;
+            else targetVel = 0;
 
             bot.shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
@@ -77,40 +81,19 @@ public class TeleTest extends LinearOpMode {
                 transferPos += 8192/3;
             }
 
-            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), transferPos);
+            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), -transferPos);
             bot.transfer.setPower(transferPower);
 
           //  bot.diverter.setPosition(diverterPos);
 //
             bot.shooter.setPower(shooterPower);
 
-            if (gamepad1.bWasPressed()) {
-
-                bot.leftIntake.setPower(-1);
-                bot.rightIntake.setPower(1);
-
-                bot.shooter.setPower(-1.0);
-
-                bot.transfer.setPower(1.0);
-
-            }
-
-            if (gamepad1.yWasPressed()) {
-
-                bot.leftIntake.setPower(0);
-                bot.rightIntake.setPower(0);
-
-                bot.shooter.setPower(0);
-
-                bot.transfer.setPower(0);
-
-            }
-
             telemetry.addData("Velocity: RPM", vel*60);
             telemetry.addData("Target Velocity", targetVel);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
             telemetry.addData("Shooter Power", bot.shooter.getPower());
-            telemetry.addData("Transfer Target: ", bot.transfer.getCurrentPosition());
+            telemetry.addData("TransferPos: ", bot.transfer.getCurrentPosition());
+            telemetry.addData("Transfer Target", transferPos);
             telemetry.update();
 
         }

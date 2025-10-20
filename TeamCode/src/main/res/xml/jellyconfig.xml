@@ -14,7 +14,7 @@
             <!--            <Servo name="rightPitch" port="4" />-->
             <!-- I2C -->
                         <LynxEmbeddedIMU name="imu" bus="0" port="0" />
-<!--                        <goBILDAPinpointRR name="pinpoint" bus="0" port="1" />-->
+                        <goBILDAPinpointRR name="pinpoint" bus="0" port="1" />
 
 
             <!--            <RevColorSensorV3 name="colorSensorLeft" bus="1" port="0" />-->

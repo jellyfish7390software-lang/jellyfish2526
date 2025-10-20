@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 @TeleOp
 public class TransferTest extends LinearOpMode {
 
-    public static double tP = 0, tI = 0, tD = 0;
+    public static double tP = -0.001, tI = 0, tD = 0;
 
     public static int transferPos = 0;
     public double transferPower = 0.0;
@@ -30,10 +30,11 @@ public class TransferTest extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             transferPID.setPID(tP, tI, tD);
 
-            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), transferPos);
+            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), -transferPos);
             bot.transfer.setPower(transferPower);
 
-            telemetry.addData("Transfer Target: ", bot.transfer.getCurrentPosition());
+            telemetry.addData("Transfer Target: ", transferPos);
+            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
             telemetry.update();
         }
     }

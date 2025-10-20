@@ -54,12 +54,11 @@ public class Robot {
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setDirection(DcMotorSimple.Direction.FORWARD);
 
         transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        transfer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
 
     }
 
