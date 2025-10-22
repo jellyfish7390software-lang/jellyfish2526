@@ -51,7 +51,7 @@ public class TeleTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-//            bot.arcadeDrive(gamepad1);
+            bot.arcadeDrive(gamepad1);
 
             transferPID.setPID(tP, tI, tD);
 

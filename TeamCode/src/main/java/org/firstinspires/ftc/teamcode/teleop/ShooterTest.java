@@ -47,7 +47,7 @@ public class ShooterTest extends LinearOpMode {
             bot.leftIntake.setPower(-power);
             bot.rightIntake.setPower(-power);
 
-            bot.diverter.setPosition(diverterPos);
+//            bot.diverter.setPosition(diverterPos);
 
 //            bot.shooter.setPower(power);
 

@@ -35,8 +35,11 @@ public class Robot {
     public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
+    public static int closeRPM = 3850;
+    public static int farRPM = 4300;
+
     public Robot(HardwareMap hardwareMap) {
-//        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
         rightIntake = hardwareMap.get(DcMotorEx.class, "right");

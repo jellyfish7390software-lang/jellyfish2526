@@ -4,9 +4,9 @@
         <LynxModule name="Control Hub" port="173">
             <!-- Motors -->
             <goBILDA5202SeriesMotor name="rightFront" port="0" />
-            <goBILDA5202SeriesMotor name="leftFront" port="1" />
-            <goBILDA5202SeriesMotor name="leftBack" port="2" />
-            <goBILDA5202SeriesMotor name="rightBack" port="3" />
+            <goBILDA5202SeriesMotor name="leftFront" port="3" />
+            <goBILDA5202SeriesMotor name="leftBack" port="1" />
+            <goBILDA5202SeriesMotor name="rightBack" port="2" />
             <!-- Servos -->
             <!--            <Servo name="rightPTO" port="0" />-->
             <!--            <Servo name="flipper" port="1" />-->
