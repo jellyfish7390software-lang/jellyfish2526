@@ -1,9 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,6 +18,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
+import org.ejml.data.DMatrixSparseCSC;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -30,6 +36,18 @@ public class Robot {
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
+
+    public static double p = 10, i = 0, d = 0, f = 13.25;
+    public static double tP = -0.001, tI = 0, tD = 0;
+
+    public static double ticksPerRev = 28.0;
+
+    public static int targetVel = 0;
+    public static int transferTarget = 0;
+
+    public static boolean runScoringLoop = true;
+
+    public PIDController transferPID;
 
     public static double TAG_HEIGHT = 38.75-9.25;
     public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
@@ -63,6 +81,9 @@ public class Robot {
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        transferPID = new PIDController(tP, tI, tD);
+        shooter.setVelocityPIDFCoefficients(p, i, d, f);
+
     }
 
 //    public void purplePath() {
@@ -71,6 +92,35 @@ public class Robot {
 //    public void greenPath() {
 //        diverter.setPosition(1);
 //    }
+    public Action scoringLoop() {
+        return new ScoringLoop();
+    }
+    public void setShooterVelocity(int vel) {
+        targetVel = vel;
+    }
+    public void setTransferPosition(int target) {
+        transferTarget = target;
+    }
+    public void incrementTransfer(int increment) {
+        transferTarget += increment;
+    }
+
+    public class ScoringLoop implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            transferPID.setPID(tP, tI, tD);
+            shooter.setVelocityPIDFCoefficients(p, i, d, f);
+
+            double vel = shooter.getVelocity() / ticksPerRev;
+
+            shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
+
+            double transferPower = transferPID.calculate(transfer.getCurrentPosition(), -transferTarget);
+            transfer.setPower(transferPower);
+
+            return Robot.runScoringLoop;
+        }
+    }
 
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;

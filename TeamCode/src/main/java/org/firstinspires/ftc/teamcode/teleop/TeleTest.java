@@ -84,9 +84,6 @@ public class TeleTest extends LinearOpMode {
             transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), -transferPos);
             bot.transfer.setPower(transferPower);
 
-          //  bot.diverter.setPosition(diverterPos);
-//
-            bot.shooter.setPower(shooterPower);
 
             telemetry.addData("Velocity: RPM", vel*60);
             telemetry.addData("Target Velocity", targetVel);
