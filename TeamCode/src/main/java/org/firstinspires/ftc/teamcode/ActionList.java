@@ -19,4 +19,7 @@ public class ActionList {
     public Action incrementTransfer(int increment) {
         return new InstantAction(() -> bot.incrementTransfer(increment));
     }
+    public Action setIntakePower(double power) {
+        return new InstantAction(() -> bot.intakePower(power));
+    }
 }

@@ -121,6 +121,10 @@ public class Robot {
             return Robot.runScoringLoop;
         }
     }
+    public void intakePower(double power) {
+        leftIntake.setPower(-power);
+        rightIntake.setPower(power);
+    }
 
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;
