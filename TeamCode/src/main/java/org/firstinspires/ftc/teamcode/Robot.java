@@ -57,6 +57,8 @@ public class Robot {
     public static int farRPM = 4300;
 
     public Robot(HardwareMap hardwareMap) {
+        targetVel = 0;
+        transferTarget = 0;
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
@@ -120,6 +122,10 @@ public class Robot {
 
             return Robot.runScoringLoop;
         }
+    }
+    public void intakePower(double power) {
+        leftIntake.setPower(-power);
+        rightIntake.setPower(power);
     }
 
     public void arcadeDrive(Gamepad gamepad1) {
