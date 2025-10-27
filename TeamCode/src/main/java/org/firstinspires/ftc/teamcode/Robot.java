@@ -61,7 +61,7 @@ public class Robot {
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
         rightIntake = hardwareMap.get(DcMotorEx.class, "right");
-       shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
       //  indexer = hardwareMap.get(CRServo.class,"indexer");
 
         //diverter = hardwareMap.get(Servo.class, "diverter");
