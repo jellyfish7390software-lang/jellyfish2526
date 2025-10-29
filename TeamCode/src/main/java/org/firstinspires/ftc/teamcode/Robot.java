@@ -10,9 +10,12 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,6 +23,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.ejml.data.DMatrixSparseCSC;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -36,11 +40,14 @@ public class Robot {
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
+    public DistanceSensor distance;
 
     public static double p = 10, i = 0, d = 0, f = 13.25;
     public static double tP = -0.001, tI = 0, tD = 0;
 
     public static double ticksPerRev = 28.0;
+
+    public static double ballDist = 0;
 
     public static int targetVel = 0;
     public static int transferTarget = 0;
@@ -68,9 +75,10 @@ public class Robot {
 
         //diverter = hardwareMap.get(Servo.class, "diverter");
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
+        distance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "distance");
 
 //        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
-       // tagCam = hardwareMap.get(WebcamName.class, "tagCam");
+        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 //
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 //
@@ -119,6 +127,8 @@ public class Robot {
 
             double transferPower = transferPID.calculate(transfer.getCurrentPosition(), -transferTarget);
             transfer.setPower(transferPower);
+
+            Robot.ballDist = distance.getDistance(DistanceUnit.MM);
 
             return Robot.runScoringLoop;
         }

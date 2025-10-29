@@ -19,7 +19,7 @@ public class Shooter_DrivetrainExample extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
 
-        // A little class I made to store all the actions for the shooter and transfer
+        // A little class I made to s][tore all the actions for the shooter and transfer
         ActionList a = new ActionList(bot);
 
         // Put starting pose here

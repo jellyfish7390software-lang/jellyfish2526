@@ -60,12 +60,12 @@ public class firstAutoTest extends LinearOpMode {
                 Roadrunner drivetrain movement (NOT the last .afterTime), so the transfer increment would
                 run 2 seconds after the shooter command, not 3
                  */
-                .afterTime(0.7, a.setShooterVelocity(3300))
+                .afterTime(0.1, a.setShooterVelocity(3300))
                 // Transfer encoder has 8192 ticks for one revolution, so this turns it 1/3 of the way
                 .afterTime(3.0, a.incrementTransfer(8192/3))
-                .afterTime(5.3, a.setIntakePower(0.5))
+                .afterTime(5.3, a.setIntakePower(1))
                 .afterTime(6.3, a.incrementTransfer(8192/3))
-                .afterTime(7.3, a.incrementTransfer(8192/3))
+                .afterTime(7.0, a.incrementTransfer(8192/3))
 
                 .afterTime(9.0, telemetryPacket -> {
                 Robot.runScoringLoop = false;
