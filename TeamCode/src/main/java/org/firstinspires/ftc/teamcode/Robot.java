@@ -5,9 +5,11 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
@@ -19,6 +21,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.ejml.data.DMatrixSparseCSC;
@@ -51,6 +54,7 @@ public class Robot {
 
     public static int targetVel = 0;
     public static int transferTarget = 0;
+    public static double intakePower = 0;
 
     public static boolean runScoringLoop = true;
 
@@ -62,6 +66,8 @@ public class Robot {
 
     public static int closeRPM = 3850;
     public static int farRPM = 4300;
+
+    public ElapsedTime timer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap) {
         targetVel = 0;
@@ -93,6 +99,8 @@ public class Robot {
 
         transferPID = new PIDController(tP, tI, tD);
         shooter.setVelocityPIDFCoefficients(p, i, d, f);
+
+        timer.reset();
 
     }
 
@@ -130,10 +138,29 @@ public class Robot {
 
             Robot.ballDist = distance.getDistance(DistanceUnit.MM);
 
+            intakePower(intakePower);
+
             return Robot.runScoringLoop;
         }
     }
+    public void turnTransfer() {
+        Actions.runBlocking(new InstantAction(() -> transferTarget += 8192/3));
+    }
+    public class CheckTransfer implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if (Robot.ballDist > 0 && Robot.ballDist < 30 && timer.seconds() > 0.75) {
+                turnTransfer();
+                timer.reset();
+            }
+            return true;
+        }
+    }
+    public Action checkTransfer() {
+        return new CheckTransfer();
+    }
     public void intakePower(double power) {
+        intakePower = power;
         leftIntake.setPower(-power);
         rightIntake.setPower(power);
     }
