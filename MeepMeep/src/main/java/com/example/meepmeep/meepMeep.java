@@ -41,7 +41,7 @@ public class meepMeep {
                 .build());
 
         // BOTTOM bot (Red Side)
-        Pose2d beginPoseBottom = new Pose2d(-56, -56, 225);
+        Pose2d beginPoseBottom = new Pose2d(-56, -56, 144);
         RoadRunnerBotEntity botBottom = new DefaultBotBuilder(meepMeep)
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 16)
                 .setColorScheme(new ColorSchemeRedDark()) // just to distinguish
