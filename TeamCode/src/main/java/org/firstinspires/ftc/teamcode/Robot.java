@@ -8,6 +8,8 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -25,6 +27,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.ejml.data.DMatrixSparseCSC;
+import org.ejml.dense.row.mult.MatrixMatrixMult_CDRM;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -43,7 +46,7 @@ public class Robot {
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
-    public DistanceSensor distance;
+    public DistanceSensor distance, intakeDistance;
 
     public static double p = 10, i = 0, d = 0, f = 13.25;
     public static double tP = -0.001, tI = 0, tD = 0;
@@ -67,6 +70,8 @@ public class Robot {
     public static int closeRPM = 3850;
     public static int farRPM = 4300;
 
+    public static int ballCount = 0;
+
     public ElapsedTime timer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap) {
@@ -77,13 +82,13 @@ public class Robot {
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
         rightIntake = hardwareMap.get(DcMotorEx.class, "right");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-      //  indexer = hardwareMap.get(CRServo.class,"indexer");
 
-        //diverter = hardwareMap.get(Servo.class, "diverter");
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
         distance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "distance");
 
-//        ballCam = hardwareMap.get(WebcamName.class, "ballCam");
+//        TODO: (10/31) Add correct config name once mounted
+//        intakeDistance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "intakeDistance");
+
         tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 //
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -144,18 +149,48 @@ public class Robot {
         }
     }
     public void turnTransfer() {
-        Actions.runBlocking(new InstantAction(() -> transferTarget += 8192/3));
+        transferTarget += 8192/3;
+    }
+    public Action turnTransferAction() {
+        return new InstantAction(() -> transferTarget += 8192/3);
     }
     public class CheckTransfer implements Action {
+        boolean shouldTurn = true;
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
+
             if (Robot.ballDist > 0 && Robot.ballDist < 30 && timer.seconds() > 0.75) {
-                turnTransfer();
+                if (shouldTurn) turnTransfer();
+
                 timer.reset();
+
+                /// New
+                ballCount++;
+                if (ballCount > 2) {
+                    shouldTurn = false;
+                }
+
+                //TODO: Change the upper bound based on testing
+                if (ballCount > 2 && intakeDist > 0 && intakeDist < 50) {
+                    intakePower(0);
+                }
+                /// New
             }
             return true;
         }
     }
+    /// New
+    public Action shootFull() {
+        return new SequentialAction(turnTransferAction(),
+                new SleepAction(0.5),
+                new InstantAction(() -> intakePower(1)),
+                new SleepAction(0.25),
+                turnTransferAction(),
+                new SleepAction(0.75),
+                turnTransferAction());
+    }
+    /// New
     public Action checkTransfer() {
         return new CheckTransfer();
     }

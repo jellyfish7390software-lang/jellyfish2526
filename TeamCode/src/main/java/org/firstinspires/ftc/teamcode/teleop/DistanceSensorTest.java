@@ -21,11 +21,18 @@ public class DistanceSensorTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
-        bot.setShooterVelocity(3400);
+        bot.setShooterVelocity(0);
         bot.intakePower(1);
         
         waitForStart();
 
-        Actions.runBlocking(new ParallelAction(bot.scoringLoop(), bot.checkTransfer()));
+//        Actions.runBlocking(new ParallelAction(bot.scoringLoop(), bot.checkTransfer()));
+
+        while (opModeIsActive() && !isStopRequested()) {
+
+            // TODO: Only run this after re-enabling the hardwareMap.get in Robot
+            telemetry.addData("IntakeDistance", bot.intakeDistance.getDistance(DistanceUnit.MM));
+            telemetry.update();
+        }
     }
 }
