@@ -26,8 +26,12 @@ public class DistanceSensorTest extends LinearOpMode {
         
         waitForStart();
 
+        //TODO: Re-enable this to check if the auto-intaking works, make sure to comment out the while
+        //TODO: loop after you do so
 //        Actions.runBlocking(new ParallelAction(bot.scoringLoop(), bot.checkTransfer()));
 
+        //TODO: Same for this
+//         Actions.runBlocking(new ParallelAction(bot.scoringLoop(), bot.shootFull()));
         while (opModeIsActive() && !isStopRequested()) {
 
             // TODO: Only run this after re-enabling the hardwareMap.get in Robot
