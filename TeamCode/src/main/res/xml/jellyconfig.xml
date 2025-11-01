@@ -1,7 +1,11 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <Robot type="FirstInspires-FTC">
     <LynxUsbDevice name="Control Hub Portal" parentModuleAddress="173" serialNumber="(embedded)">
+
+        <WebcamName name="tagcam" serialNumber="310F0950" />
+
         <LynxModule name="Control Hub" port="173">
+
             <!-- Motors -->
             <goBILDA5202SeriesMotor name="rightFront" port="0" />
             <goBILDA5202SeriesMotor name="leftFront" port="3" />
@@ -14,10 +18,10 @@
             <!--            <Servo name="rightPitch" port="4" />-->
             <!-- I2C -->
                         <LynxEmbeddedIMU name="imu" bus="0" port="0" />
-                        <goBILDAPinpointRR name="pinpoint" bus="0" port="1" />
+                        <goBILDAPinpoint name="pinpoint" bus="3" port="1" />
 
 
-            <!--            <RevColorSensorV3 name="colorSensorLeft" bus="1" port="0" />-->
+                        <RevColorSensorV3 name="distance" bus="2" port="0" />
             <!--            <RevColorSensorV3 name="colorSensorRight" bus="3" port="0" />-->
             <!--            <RevColorSensorV3 name="colorSensorRight" bus="3" port="0" />-->
             <!--            3 is ORANGE FOR COLOR SENSOR-->
