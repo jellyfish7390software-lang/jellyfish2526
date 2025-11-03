@@ -24,20 +24,20 @@ public class meepMeep {
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-12, 38, Math.toRadians(90)), Math.toRadians(90))
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(-24, 24), Math.toRadians(135))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
                 .waitSeconds(1)
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(-24, 24), Math.toRadians(135))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(38, 38), Math.toRadians(90))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(-24, 24), Math.toRadians(135))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
                 .build());
 
         // BOTTOM bot (Red Side)
@@ -53,20 +53,20 @@ public class meepMeep {
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-12, -38, Math.toRadians(-90)), Math.toRadians(-90))    // was 90°
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(-24, -24), Math.toRadians(-135))   // was 135°
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-24, -24, Math.toRadians(-135)), Math.toRadians(135))  // was 135°
                 .waitSeconds(1)
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(12, -38, Math.toRadians(-90)), Math.toRadians(-90))     // was 90°
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(-24, -24), Math.toRadians(-135))   // was 135°
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-24, -24, Math.toRadians(-135)), Math.toRadians(-135))  // was 135°
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(38, -38), Math.toRadians(-90))     // was 90°
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(38, -38, Math.toRadians(-90)), Math.toRadians(-90))     // was 90°
                 .waitSeconds(1)
-                .setReversed(false)
-                .splineTo(new Vector2d(-24, -24), Math.toRadians(-135))   // was 135°
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-24, -24, Math.toRadians(-135)), Math.toRadians(-135))  // was 135°
                 .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
