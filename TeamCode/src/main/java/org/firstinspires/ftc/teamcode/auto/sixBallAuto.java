@@ -91,6 +91,6 @@ public class sixBallAuto extends LinearOpMode {
 
         // Runs the drive action you created in parallel with the PIDF loops for the shooter and transfer.
         // Without including the bot.scoringLoop(), the shooter and transfer would not update.
-        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop()));
+        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.checkTransfer()));
     }
 }
