@@ -78,6 +78,8 @@ public class Robot {
     public Robot(HardwareMap hardwareMap) {
         targetVel = 0;
         transferTarget = 0;
+        intakePower = 0;
+        ballDist = 0;
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
@@ -156,7 +158,7 @@ public class Robot {
         return new InstantAction(() -> transferTarget += 8192/3);
     }
     public class CheckTransfer implements Action {
-        boolean shouldTurn = true;
+        boolean shouldTurn = runCheckLoop;
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
@@ -170,6 +172,9 @@ public class Robot {
                 ballCount++;
                 if (ballCount > 2) {
                     shouldTurn = false;
+                }
+                else{
+                    shouldTurn = runCheckLoop;
                 }
 
                 //TODO: Change the upper bound based on testing
