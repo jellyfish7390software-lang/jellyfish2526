@@ -90,7 +90,7 @@ public class Robot {
 //        TODO: (10/31) Add correct config name once mounted
         intakeDistance = hardwareMap.get(DistanceSensor.class, "intakeDistance");
 
-        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
+//        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 //
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 //
