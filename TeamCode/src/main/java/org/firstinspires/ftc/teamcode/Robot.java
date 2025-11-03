@@ -60,6 +60,7 @@ public class Robot {
     public static double intakePower = 0;
 
     public static boolean runScoringLoop = true;
+    public static boolean runCheckLoop = false;
 
     public PIDController transferPID;
 
@@ -87,7 +88,7 @@ public class Robot {
         distance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "distance");
 
 //        TODO: (10/31) Add correct config name once mounted
-//        intakeDistance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "intakeDistance");
+        intakeDistance = hardwareMap.get(DistanceSensor.class, "intakeDistance");
 
         tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 //
@@ -172,12 +173,12 @@ public class Robot {
                 }
 
                 //TODO: Change the upper bound based on testing
-                if (ballCount > 2 && intakeDist > 0 && intakeDist < 50) {
+                if (ballCount > 2 && intakeDist > 0 && intakeDist < 25) {
                     intakePower(0);
                 }
                 /// New
             }
-            return true;
+            return runCheckLoop;
         }
     }
     /// New
@@ -187,8 +188,9 @@ public class Robot {
                 new InstantAction(() -> intakePower(1)),
                 new SleepAction(0.25),
                 turnTransferAction(),
-                new SleepAction(0.75),
-                turnTransferAction());
+                new SleepAction(0.5),
+                turnTransferAction(),
+                new InstantAction(() -> ballCount = 0));
     }
     /// New
     public Action checkTransfer() {

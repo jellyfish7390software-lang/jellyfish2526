@@ -25,4 +25,10 @@ public class ActionList {
     public Action turnTransfer() {
         return new InstantAction(() -> bot.incrementTransfer(8192/3));
     }
+    public Action startCheckLoop() {
+        return new InstantAction(() -> Robot.runCheckLoop = true);
+    }
+    public Action stopCheckLoop() {
+        return new InstantAction(() -> Robot.runCheckLoop = false);
+    }
 }
