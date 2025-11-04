@@ -194,6 +194,9 @@ public class Robot {
     public Action sleepWithPID(double dt) {
         return new RaceAction(new SleepAction(dt), scoringLoop());
     }
+    public Action sleepWithPIDTeleop(double dt, Gamepad gamepad) {
+        return new RaceAction(new SleepAction(dt), scoringLoop(), driveAction(gamepad));
+    }
     /// New
     public Action shootFull() {
         return new SequentialAction(turnTransferAction(),

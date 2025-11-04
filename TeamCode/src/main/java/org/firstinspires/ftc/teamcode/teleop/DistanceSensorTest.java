@@ -38,7 +38,7 @@ public class DistanceSensorTest extends LinearOpMode {
             if (gamepad1.aWasPressed()) {
                 bot.setShooterVelocity(3400);
                 Robot.runCheckLoop = false;
-                Actions.runBlocking(new RaceAction(new SleepAction(3), bot.scoringLoop()));
+                Actions.runBlocking(bot.sleepWithPIDTeleop(3, gamepad1));
                 Actions.runBlocking(bot.shootFull());
 //                bot.setShooterVelocity(0);
             }
