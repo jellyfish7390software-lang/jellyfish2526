@@ -48,7 +48,7 @@ public class sixBallAuto extends LinearOpMode {
                 .waitSeconds(3.75)
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-12, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(1)
+                .waitSeconds(3)
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
                 .waitSeconds(1)
