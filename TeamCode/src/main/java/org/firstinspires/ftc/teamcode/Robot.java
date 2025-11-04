@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -72,6 +73,7 @@ public class Robot {
     public static int farRPM = 4300;
 
     public static int ballCount = 0;
+    public static boolean ShouldTurn = false;
 
     public ElapsedTime timer = new ElapsedTime();
 
@@ -80,6 +82,7 @@ public class Robot {
         transferTarget = 0;
         intakePower = 0;
         ballDist = 0;
+        ballCount = 0;
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "left");
@@ -170,30 +173,35 @@ public class Robot {
 
                 /// New
                 ballCount++;
-                if (ballCount > 2) {
+                if (ballCount >= 1) {
                     shouldTurn = false;
-                }
-                else{
-                    shouldTurn = runCheckLoop;
                 }
 
                 //TODO: Change the upper bound based on testing
-                if (ballCount > 2 && intakeDist > 0 && intakeDist < 25) {
+                if (ballCount > 2 && intakeDist > 0 && intakeDist < 35) {
                     intakePower(0);
                 }
+
+                Robot.ShouldTurn = shouldTurn;
                 /// New
             }
             return runCheckLoop;
         }
     }
+    public Action driveAction(Gamepad gamepad) {
+        return new LoopAction(() -> arcadeDrive(gamepad));
+    }
+    public Action sleepWithPID(double dt) {
+        return new RaceAction(new SleepAction(dt), scoringLoop());
+    }
     /// New
     public Action shootFull() {
         return new SequentialAction(turnTransferAction(),
-                new SleepAction(0.5),
+                sleepWithPID(0.5),
                 new InstantAction(() -> intakePower(1)),
-                new SleepAction(0.25),
+                sleepWithPID(0.75),
                 turnTransferAction(),
-                new SleepAction(0.5),
+                sleepWithPID(0.75),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
