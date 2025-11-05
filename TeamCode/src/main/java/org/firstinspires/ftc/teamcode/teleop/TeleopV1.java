@@ -22,6 +22,7 @@ public class TeleopV1 extends LinearOpMode {
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
         bot.setShooterVelocity(0);
         bot.intakePower(0);
+        bot.setGamepads(gamepad1, gamepad2);
 
         waitForStart();
 
@@ -45,6 +46,9 @@ public class TeleopV1 extends LinearOpMode {
                 Robot.runCheckLoop = false;
             }
 
+            telemetry.addData("runCheckLoop", Robot.runCheckLoop);
+            telemetry.addData("BallDist", Robot.ballDist);
+            telemetry.addData("timer", bot.timer.seconds());
             telemetry.addData("IntakeDistance", bot.intakeDistance.getDistance(DistanceUnit.MM));
             telemetry.addData("BallCount", Robot.ballCount);
             telemetry.addData("ShouldTurn", Robot.ShouldTurn);

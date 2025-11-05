@@ -49,6 +49,8 @@ public class Robot {
     public List<AprilTagDetection> detections;
     public DistanceSensor distance, intakeDistance;
 
+    public Gamepad gamepad1, gamepad2;
+
     public static double p = 10, i = 0, d = 0, f = 13.25;
     public static double tP = -0.001, tI = 0, tD = 0;
 
@@ -164,32 +166,34 @@ public class Robot {
     public Action turnTransferAction() {
         return new InstantAction(() -> transferTarget += 8192/3);
     }
+    public void setGamepads(Gamepad gamepad1, Gamepad gamepad2) {
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
+    }
     public class CheckTransfer implements Action {
-        boolean shouldTurn = runCheckLoop;
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
+
+            boolean shouldTurn = Robot.runCheckLoop;
 
             if (Robot.ballDist > 0 && Robot.ballDist < 30 && timer.seconds() > 0.75) {
                 if (shouldTurn) turnTransfer();
 
                 timer.reset();
 
-                /// New
                 ballCount++;
                 if (ballCount >= 1) {
                     shouldTurn = false;
                 }
 
-                //TODO: Change the upper bound based on testing
                 if (ballCount > 2 && intakeDist > 0 && intakeDist < 35) {
                     intakePower(0);
                 }
 
                 Robot.ShouldTurn = shouldTurn;
-                /// New
             }
-            return runCheckLoop;
+            return Robot.runCheckLoop;
         }
     }
     public Action driveAction(Gamepad gamepad) {
@@ -204,11 +208,11 @@ public class Robot {
     /// New
     public Action shootFull() {
         return new SequentialAction(turnTransferAction(),
-                sleepWithPID(0.5),
+                sleepWithPIDTeleop(0.5, gamepad1),
                 new InstantAction(() -> intakePower(1)),
-                sleepWithPID(0.75),
+                sleepWithPIDTeleop(0.75, gamepad1),
                 turnTransferAction(),
-                sleepWithPID(0.75),
+                sleepWithPIDTeleop(0.75, gamepad1),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
