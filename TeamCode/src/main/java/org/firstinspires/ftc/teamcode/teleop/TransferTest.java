@@ -30,7 +30,7 @@ public class TransferTest extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             transferPID.setPID(tP, tI, tD);
 
-            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), -transferPos);
+            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), transferPos);
             bot.transfer.setPower(transferPower);
 
             telemetry.addData("Transfer Target: ", transferPos);
