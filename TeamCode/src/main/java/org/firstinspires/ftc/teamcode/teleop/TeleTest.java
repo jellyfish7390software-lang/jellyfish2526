@@ -69,12 +69,10 @@ public class TeleTest extends LinearOpMode {
             }
 
             if (bIndex % 2 == 1) {
-                bot.leftIntake.setPower(-power);
-                bot.rightIntake.setPower(power);
+                bot.intake.setPower(power);
             }
             else if (bIndex % 2 == 0) {
-                bot.leftIntake.setPower(0);
-                bot.rightIntake.setPower(0);
+                bot.intake.setPower(0);
             }
 
             if (gamepad1.xWasPressed()) {

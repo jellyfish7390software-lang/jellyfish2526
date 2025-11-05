@@ -25,10 +25,10 @@
         </LynxModule>
         <LynxModule name="Expansion Hub 2" port="2">
             <!-- Motors -->
-            <goBILDA5202SeriesMotor name="left" port="0" />
+            <goBILDA5202SeriesMotor name="intake" port="0" />
             <goBILDA5202SeriesMotor name="transfer" port="1" />
             <goBILDA5202SeriesMotor name="shooter" port="2" />
-            <goBILDA5202SeriesMotor name="right" port="3" />
+<!--            <goBILDA5202SeriesMotor name="right" port="3" />-->
             <!-- Servos -->
 <!--            <Servo name="diverter" port="0" />-->
             <!--            <Servo name="rightSweeper" port="2" />-->

@@ -38,8 +38,7 @@ public class PowerTest extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
 
         bot.shooter.setPower(-shooterPower); //0.6-0.7 from med
-        bot.leftIntake.setPower(-power);
-        bot.rightIntake.setPower(power);
+        bot.intake.setPower(power);
         bot.transfer.setPower(-transferPower);
 
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());

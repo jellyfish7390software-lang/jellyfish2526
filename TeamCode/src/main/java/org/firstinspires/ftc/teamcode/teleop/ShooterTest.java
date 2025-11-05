@@ -24,6 +24,8 @@ public class ShooterTest extends LinearOpMode {
     public static double p = 10, i = 0, d = 0, f = 12;
 
     public static double power = 0.0;
+    public static double shooterPower = 0.0;
+    public static double transferPower = 0.0;
 
     public static double diverterPos = 0;
 
@@ -44,12 +46,13 @@ public class ShooterTest extends LinearOpMode {
 
             bot.shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
 
-            bot.leftIntake.setPower(-power);
-            bot.rightIntake.setPower(-power);
+            bot.intake.setPower(power);
+
+            bot.transfer.setPower(transferPower);
 
 //            bot.diverter.setPosition(diverterPos);
 
-//            bot.shooter.setPower(power);
+//            bot.shooter.setPower(shooterPower);
 
             telemetry.addData("Velocity: RPM", vel*60);
             telemetry.addData("Target Velocity", targetVel);

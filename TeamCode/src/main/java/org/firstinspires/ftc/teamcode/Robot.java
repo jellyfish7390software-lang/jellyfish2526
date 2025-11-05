@@ -41,7 +41,7 @@ import java.util.List;
 public class Robot {
 
     public MecanumDrive drive;
-    public DcMotorEx leftIntake, rightIntake, shooter;
+    public DcMotorEx intake, shooter;
     public DcMotorEx transfer;
     public Servo diverter;
     public WebcamName ballCam, tagCam;
@@ -85,8 +85,7 @@ public class Robot {
         ballCount = 0;
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
-        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
@@ -102,7 +101,7 @@ public class Robot {
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooter.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -214,8 +213,7 @@ public class Robot {
     }
     public void intakePower(double power) {
         intakePower = power;
-        leftIntake.setPower(-power);
-        rightIntake.setPower(power);
+        intake.setPower(power);
     }
 
     public void arcadeDrive(Gamepad gamepad1) {

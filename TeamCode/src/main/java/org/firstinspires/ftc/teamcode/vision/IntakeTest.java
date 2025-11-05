@@ -22,8 +22,7 @@ public class IntakeTest extends LinearOpMode {
 
 
         while (opModeIsActive() && !isStopRequested()) {
-            bot.leftIntake.setPower(leftPower);
-            bot.rightIntake.setPower(rightPower);
+            bot.intake.setPower(leftPower);
         }
 
     }
