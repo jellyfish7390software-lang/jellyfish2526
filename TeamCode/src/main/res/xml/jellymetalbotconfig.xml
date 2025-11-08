@@ -49,7 +49,7 @@
 
     </LynxUsbDevice>
 
-    <Webcam name="tagcam" serialNumber="310F0950" />
+    <Webcam name="tagcam" serialNumber="4D23DE60" />
 
 </Robot>
 

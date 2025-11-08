@@ -25,7 +25,7 @@ public class TeleTest extends LinearOpMode {
 
     public static double p = 10, i = 0, d = 0, f = 13.25;
 
-    public static double tP = -0.001, tI = 0, tD = 0;
+    public static double tP = 0.001, tI = 0, tD = 0;
 
     public static double power = 1.0;
 
@@ -79,7 +79,7 @@ public class TeleTest extends LinearOpMode {
                 transferPos += 8192/3;
             }
 
-            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), -transferPos);
+            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), transferPos);
             bot.transfer.setPower(transferPower);
 
 
