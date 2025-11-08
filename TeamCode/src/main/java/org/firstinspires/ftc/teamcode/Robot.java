@@ -90,20 +90,21 @@ public class Robot {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
 //        intake = hardwareMap.get(DcMotorEx.class, "intake");
-        leftIntake = hardwareMap.get(DcMotorEx.class, "left");
-        rightIntake = hardwareMap.get(DcMotorEx.class, "right");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
+        //rightIntake = hardwareMap.get(DcMotorEx.class, "right");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
-        distance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "distance");
+        distance = hardwareMap.get(DistanceSensor.class, "distance");
 
 //        TODO: (10/31) Add correct config name once mounted
-        intakeDistance = hardwareMap.get(DistanceSensor.class, "intakeDistance");
+       // intakeDistance = hardwareMap.get(DistanceSensor.class, "intakeDistance");
 
 //        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
 //
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 //
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -111,7 +112,7 @@ public class Robot {
 
         transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
+        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
 
         transferPID = new PIDController(tP, tI, tD);
         shooter.setVelocityPIDFCoefficients(p, i, d, f);
@@ -223,8 +224,7 @@ public class Robot {
     public void intakePower(double power) {
         intakePower = power;
 //        intake.setPower(power);
-        leftIntake.setPower(-power);
-        rightIntake.setPower(power);
+        intake.setPower(-power);
     }
 
     public void arcadeDrive(Gamepad gamepad1) {

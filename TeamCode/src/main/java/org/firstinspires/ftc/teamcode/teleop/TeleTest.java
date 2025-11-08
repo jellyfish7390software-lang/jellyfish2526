@@ -87,7 +87,7 @@ public class TeleTest extends LinearOpMode {
             telemetry.addData("Target Velocity", targetVel);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
             telemetry.addData("Shooter Power", bot.shooter.getPower());
-            telemetry.addData("TransferPos: ", bot.transfer.getCurrentPosition());
+            telemetry.addData("TransferPos ", bot.transfer.getCurrentPosition());
             telemetry.addData("Transfer Target", transferPos);
             telemetry.update();
 
