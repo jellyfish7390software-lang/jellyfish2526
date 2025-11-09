@@ -32,7 +32,7 @@ public class TeleopV1 extends LinearOpMode {
         Actions.runBlocking(new ParallelAction(bot.scoringLoop(), bot.checkTransfer(), bot.driveAction(gamepad1), new LoopAction(() -> {
             if (gamepad1.aWasPressed()) {
                 bot.setShooterVelocity(3400);
-                Robot.runCheckLoop = false;
+                Robot.runCheckLoop = true;
                 Actions.runBlocking(bot.sleepWithPIDTeleop(3, gamepad1));
                 Actions.runBlocking(bot.shootFull());
                 bot.setShooterVelocity(0);
