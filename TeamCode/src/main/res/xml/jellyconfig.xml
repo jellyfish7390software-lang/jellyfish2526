@@ -4,10 +4,10 @@
         <LynxModule name="Control Hub" port="173">
 
             <!-- Motors -->
-            <goBILDA5202SeriesMotor name="rightFront" port="0" />
-            <goBILDA5202SeriesMotor name="leftFront" port="3" />
+<!--            <goBILDA5202SeriesMotor name="rightFront" port="0" />-->
             <goBILDA5202SeriesMotor name="leftBack" port="1" />
-            <goBILDA5202SeriesMotor name="rightBack" port="2" />
+            <goBILDA5202SeriesMotor name="leftFront" port="2" />
+            <goBILDA5202SeriesMotor name="shooter" port="3" />
             <!-- Servos -->
             <!--            <Servo name="rightPTO" port="0" />-->
             <!--            <Servo name="flipper" port="1" />-->
@@ -27,7 +27,8 @@
             <!-- Motors -->
             <goBILDA5202SeriesMotor name="intake" port="0" />
             <goBILDA5202SeriesMotor name="transfer" port="1" />
-            <goBILDA5202SeriesMotor name="shooter" port="2" />
+            <goBILDA5202SeriesMotor name="rightFront" port="2" />
+            <goBILDA5202SeriesMotor name="rightBack" port="3" />
 <!--            <goBILDA5202SeriesMotor name="right" port="3" />-->
             <!-- Servos -->
 <!--            <Servo name="diverter" port="0" />-->

@@ -29,6 +29,9 @@ public class ShooterTest extends LinearOpMode {
 
     public static double diverterPos = 0;
 
+    /// 13.64 V / 11.9
+    ///
+
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);

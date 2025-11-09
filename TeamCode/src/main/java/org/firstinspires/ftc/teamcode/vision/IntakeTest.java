@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 @Config
 @TeleOp
 public class IntakeTest extends LinearOpMode {
-    public static double leftPower = 0;
+    public static double leftPower = 1;
     public static double rightPower = 0;
 
     @Override
@@ -22,7 +22,8 @@ public class IntakeTest extends LinearOpMode {
 
 
         while (opModeIsActive() && !isStopRequested()) {
-            bot.intake.setPower(leftPower);
+            bot.leftIntake.setPower(leftPower);
+            bot.rightIntake.setPower(-leftPower);
         }
 
     }
