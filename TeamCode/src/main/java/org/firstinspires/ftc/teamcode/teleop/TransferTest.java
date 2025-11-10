@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 @TeleOp
 public class TransferTest extends LinearOpMode {
 
-    public static double tP = -0.001, tI = 0, tD = 0;
+    public static double tP = 0.003, tI = 0, tD = 0;
 
     public static int transferPos = 0;
     public double transferPower = 0.0;

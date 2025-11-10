@@ -20,7 +20,7 @@
             <goBILDAPinpoint name="pinpoint" bus="1" port="1" />
 
 
-<!--            <RevColorSensorV3 name="distance" bus="2" port="0" />-->
+            <RevColorSensorV3 name="distance" bus="2" port="0" />
             <!--            <RevColorSensorV3 name="colorSensorRight" bus="3" port="0" />-->
             <!--            <RevColorSensorV3 name="colorSensorRight" bus="3" port="0" />-->
             <!--            3 is ORANGE FOR COLOR SENSOR-->

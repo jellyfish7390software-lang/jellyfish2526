@@ -40,7 +40,7 @@ public class DistanceSensorTest extends LinearOpMode {
                 Robot.runCheckLoop = false;
                 Actions.runBlocking(bot.sleepWithPIDTeleop(3, gamepad1));
                 Actions.runBlocking(bot.shootFull());
-//                bot.setShooterVelocity(0);
+                bot.setShooterVelocity(0);
             }
             telemetry.addData("IntakeDistance", bot.intakeDistance.getDistance(DistanceUnit.MM));
             telemetry.addData("BallCount", Robot.ballCount);
