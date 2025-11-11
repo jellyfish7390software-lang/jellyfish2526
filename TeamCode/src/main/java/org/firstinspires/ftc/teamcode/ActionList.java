@@ -23,7 +23,7 @@ public class ActionList {
         return new InstantAction(() -> bot.intakePower(power));
     }
     public Action turnTransfer() {
-        return new InstantAction(() -> bot.incrementTransfer(8192/3));
+        return new InstantAction(() -> bot.turnTransfer());
     }
     public Action startCheckLoop() {
         return new InstantAction(() -> Robot.runCheckLoop = true);

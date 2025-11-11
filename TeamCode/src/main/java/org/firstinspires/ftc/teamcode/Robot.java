@@ -55,6 +55,9 @@ public class Robot {
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
     public static double tP = 0.003, tI = 0, tD = 0;
+    public static double hP = 0.05, hI = 0, hD = 0;
+    public PIDController hPID = new PIDController(hP, hI, hD);
+    public static boolean atagAlign = false;
 
     public static double ticksPerRev = 28.0;
 
@@ -110,7 +113,7 @@ public class Robot {
 
         transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        transfer.setDirection(DcMotorSimple.Direction.REVERSE);
+        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
 
         transferPID = new PIDController(tP, tI, tD);
         shooter.setVelocityPIDFCoefficients(p, i, d, f);
@@ -137,6 +140,19 @@ public class Robot {
     public void incrementTransfer(int increment) {
         transferTarget += increment;
     }
+    public void scoringLoopTele() {
+        transferPID.setPID(tP, tI, tD);
+        shooter.setVelocityPIDFCoefficients(p, i, d, f);
+
+        double vel = shooter.getVelocity() / ticksPerRev;
+
+        shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
+
+        double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
+        transfer.setPower(transferPower);
+
+        intakePower(intakePower);
+    }
 
     public class ScoringLoop implements Action {
         @Override
@@ -160,14 +176,32 @@ public class Robot {
         }
     }
     public void turnTransfer() {
-        transferTarget += 8192/3;
+        transferTarget += 2050/3;
     }
     public Action turnTransferAction() {
-        return new InstantAction(() -> transferTarget += 8192/3);
+        return new InstantAction(() -> transferTarget += 2050/3);
     }
     public void setGamepads(Gamepad gamepad1, Gamepad gamepad2) {
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
+    }
+    public void checkTransferTele() {
+        double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
+        Robot.ballDist = distance.getDistance(DistanceUnit.MM);
+
+
+        if (Robot.ballDist > 0 && Robot.ballDist < 40 && timer.seconds() > 0.75) {
+            if (ballCount < 1) turnTransfer();
+
+            timer.reset();
+
+            ballCount++;
+
+            if (ballCount > 2 && intakeDist > 0 && intakeDist < 15) {
+                intakePower(0);
+            }
+
+        }
     }
     public class CheckTransfer implements Action {
         @Override
@@ -176,7 +210,7 @@ public class Robot {
 
             boolean shouldTurn = Robot.runCheckLoop;
 
-            if (Robot.ballDist > 0 && Robot.ballDist < 30 && timer.seconds() > 0.75) {
+            if (Robot.ballDist > 0 && Robot.ballDist < 40 && timer.seconds() > 0.75) {
                 if (shouldTurn) turnTransfer();
 
                 timer.reset();
@@ -186,7 +220,7 @@ public class Robot {
                     shouldTurn = false;
                 }
 
-                if (ballCount > 2 && intakeDist > 0 && intakeDist < 35) {
+                if (ballCount > 2 && intakeDist > 0 && intakeDist < 15) {
                     intakePower(0);
                 }
 
@@ -222,15 +256,32 @@ public class Robot {
     public void intakePower(double power) {
         intakePower = power;
 //        intake.setPower(power);
-        intake.setPower(-power);
+        intake.setPower(power);
     }
 
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
-        double rx = -0.75 * gamepad1.right_stick_x;
+        if (!atagAlign) {
+            double rx = -0.75 * gamepad1.right_stick_x;
 
-        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-y, x), rx));
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-y, x), rx));
+        }
+        if (atagAlign) {
+            atagAlign(-y, x);
+        }
+    }
+    public void atagAlign(double x, double y) {
+        hPID.setPID(hP, hI, hD);
+        double hPower = 0;
+        if (!tagProcessor.getDetections().isEmpty() && (tagProcessor.getDetections().get(0).id == 20 || tagProcessor.getDetections().get(0).id
+                == 24)) {
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, 0);
+        }
+
+        drive.setDrivePowers(new PoseVelocity2d(new Vector2d(x,y), -hPower));
+
+        drive.updatePoseEstimate();
     }
 
     public void arcadeDriveWithSlowMode(Gamepad gamepad) {

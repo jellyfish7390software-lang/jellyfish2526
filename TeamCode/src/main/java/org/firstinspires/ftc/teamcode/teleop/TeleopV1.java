@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.util.Size;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
@@ -13,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LoopAction;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp
 public class TeleopV1 extends LinearOpMode {
@@ -29,21 +32,50 @@ public class TeleopV1 extends LinearOpMode {
         Robot.runCheckLoop = false;
         Robot.runScoringLoop = true;
 
-        Actions.runBlocking(new ParallelAction(bot.scoringLoop(), bot.checkTransfer(), bot.driveAction(gamepad1), new LoopAction(() -> {
-            if (gamepad1.aWasPressed()) {
-                bot.setShooterVelocity(3400);
+        VisionPortal tag = new VisionPortal.Builder()
+                .addProcessor(bot.tagProcessor)
+                .setCamera(bot.tagCam)
+                .setCameraResolution(new Size(320, 240))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .build();
+
+        tag.stopStreaming();
+
+        while (opModeIsActive()) {
+            bot.scoringLoopTele();
+            bot.arcadeDrive(gamepad1);
+
+            if (gamepad1.bWasPressed()) {
+                bot.setShooterVelocity(4000);
                 Robot.runCheckLoop = true;
                 Actions.runBlocking(bot.sleepWithPIDTeleop(3, gamepad1));
                 Actions.runBlocking(bot.shootFull());
+                Actions.runBlocking(bot.sleepWithPIDTeleop(1.5, gamepad1));
                 bot.setShooterVelocity(0);
             }
+
             if (gamepad1.right_trigger > 0) {
                 bot.intakePower(1);
-                Robot.runCheckLoop = true;
+                bot.checkTransferTele();
             }
             else {
                 bot.intakePower(0);
-                Robot.runCheckLoop = false;
+            }
+            if (gamepad1.left_trigger > 0) {
+                bot.intakePower(-gamepad1.left_trigger);
+            }
+            if (gamepad1.y) {
+                tag.resumeStreaming();
+                Robot.atagAlign = true;
+                if (!bot.tagProcessor.getDetections().isEmpty() && (bot.tagProcessor.getDetections().get(0).id == 20 || bot.tagProcessor.getDetections().get(0).id
+                        == 24)) {
+                    telemetry.addData("Pitch", bot.tagProcessor.getDetections().get(0).ftcPose.pitch);
+                }
+
+            }
+            else {
+                tag.stopStreaming();
+                Robot.atagAlign = false;
             }
 
             telemetry.addData("runCheckLoop", Robot.runCheckLoop);
@@ -53,7 +85,7 @@ public class TeleopV1 extends LinearOpMode {
             telemetry.addData("BallCount", Robot.ballCount);
             telemetry.addData("ShouldTurn", Robot.ShouldTurn);
             telemetry.update();
-        })));
+        }
 
     }
 }
