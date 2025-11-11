@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.dense.row.mult.MatrixMatrixMult_CDRM;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -55,7 +56,7 @@ public class Robot {
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
     public static double tP = 0.003, tI = 0, tD = 0;
-    public static double hP = 0.05, hI = 0, hD = 0;
+    public static double hP = -0.04, hI = 0, hD = 0;
     public PIDController hPID = new PIDController(hP, hI, hD);
     public static boolean atagAlign = false;
 
@@ -176,10 +177,10 @@ public class Robot {
         }
     }
     public void turnTransfer() {
-        transferTarget += 2050/3;
+        transferTarget += 2000/3;
     }
     public Action turnTransferAction() {
-        return new InstantAction(() -> transferTarget += 2050/3);
+        return new InstantAction(() -> transferTarget += 2000/3);
     }
     public void setGamepads(Gamepad gamepad1, Gamepad gamepad2) {
         this.gamepad1 = gamepad1;
@@ -235,17 +236,21 @@ public class Robot {
     public Action sleepWithPID(double dt) {
         return new RaceAction(new SleepAction(dt), scoringLoop());
     }
-    public Action sleepWithPIDTeleop(double dt, Gamepad gamepad) {
-        return new RaceAction(new SleepAction(dt), scoringLoop(), driveAction(gamepad));
+    public Action sleepWithPIDTeleop(double dt, Gamepad gamepad, Telemetry telemetry) {
+        return new RaceAction(new SleepAction(dt), scoringLoop(), driveAction(gamepad), new LoopAction(() -> {
+            telemetry.addData("Vel", getRpm());
+            telemetry.addData("Target", Robot.targetVel);
+            telemetry.update();
+        }));
     }
     /// New
-    public Action shootFull() {
+    public Action shootFull(Telemetry telemetry) {
         return new SequentialAction(turnTransferAction(),
-                sleepWithPIDTeleop(0.5, gamepad1),
+                sleepWithPIDTeleop(0.5, gamepad1, telemetry),
                 new InstantAction(() -> intakePower(1)),
-                sleepWithPIDTeleop(0.75, gamepad1),
+                sleepWithPIDTeleop(0.75, gamepad1, telemetry),
                 turnTransferAction(),
-                sleepWithPIDTeleop(0.75, gamepad1),
+                sleepWithPIDTeleop(1, gamepad1, telemetry),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
@@ -261,15 +266,19 @@ public class Robot {
 
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x;
+        double x = -gamepad1.left_stick_x;
         if (!atagAlign) {
             double rx = -0.75 * gamepad1.right_stick_x;
 
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(y, x), rx));
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-y, x), rx));
         }
         if (atagAlign) {
-            atagAlign(y, x);
+            atagAlign(-y, x);
         }
+    }
+    public double getRpm() {
+        double vel = shooter.getVelocity() / ticksPerRev;
+        return vel * 60;
     }
     public void atagAlign(double x, double y) {
         hPID.setPID(hP, hI, hD);

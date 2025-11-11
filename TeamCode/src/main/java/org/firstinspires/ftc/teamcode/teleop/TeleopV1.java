@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantFunction;
 import com.acmerobotics.roadrunner.Line;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -47,11 +48,15 @@ public class TeleopV1 extends LinearOpMode {
             bot.arcadeDrive(gamepad1);
 
             if (gamepad1.bWasPressed()) {
-                bot.setShooterVelocity(4000);
+                bot.setShooterVelocity(3900);
                 Robot.runCheckLoop = true;
-                Actions.runBlocking(bot.sleepWithPIDTeleop(3, gamepad1));
-                Actions.runBlocking(bot.shootFull());
-                Actions.runBlocking(bot.sleepWithPIDTeleop(1.5, gamepad1));
+                Actions.runBlocking(new RaceAction(bot.sleepWithPIDTeleop(3, gamepad1, telemetry), new LoopAction(() -> {
+                    telemetry.addData("Vel", bot.getRpm());
+                    telemetry.addData("Target", Robot.targetVel);
+                    telemetry.update();
+                })));
+                Actions.runBlocking(bot.shootFull(telemetry));
+                Actions.runBlocking(bot.sleepWithPIDTeleop(1.5, gamepad1, telemetry));
                 bot.setShooterVelocity(0);
             }
 
@@ -79,6 +84,8 @@ public class TeleopV1 extends LinearOpMode {
                 Robot.atagAlign = false;
             }
 
+            telemetry.addData("Vel", bot.getRpm());
+            telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("runCheckLoop", Robot.runCheckLoop);
             telemetry.addData("BallDist", Robot.ballDist);
             telemetry.addData("timer", bot.timer.seconds());
