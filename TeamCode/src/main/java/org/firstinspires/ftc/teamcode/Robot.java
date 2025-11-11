@@ -254,6 +254,16 @@ public class Robot {
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
+    public Action shootFull() {
+        return new SequentialAction(turnTransferAction(),
+                sleepWithPID(0.5),
+                new InstantAction(() -> intakePower(1)),
+                sleepWithPID(0.75),
+                turnTransferAction(),
+                sleepWithPID(1),
+                turnTransferAction(),
+                new InstantAction(() -> ballCount = 0));
+    }
     /// New
     public Action checkTransfer() {
         return new CheckTransfer();
