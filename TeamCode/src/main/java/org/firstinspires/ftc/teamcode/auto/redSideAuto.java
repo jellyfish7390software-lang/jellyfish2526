@@ -63,25 +63,6 @@ public class redSideAuto extends LinearOpMode {
                 .waitSeconds(1)
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-
-
-
-
-                .splineTo(new Vector2d(-48, -24), Math.toRadians(135))    // was 225°
-                .waitSeconds(0.5)
-                .splineTo(new Vector2d(-12, -38), Math.toRadians(-90))    // was 90°
-                .waitSeconds(1)
-                .splineTo(new Vector2d(-24, -24), Math.toRadians(-135))   // was 135°
-                .waitSeconds(1)
-                .splineTo(new Vector2d(12, -38), Math.toRadians(-90))     // was 90°
-                .waitSeconds(1)
-                .splineTo(new Vector2d(-24, -24), Math.toRadians(-135))   // was 135°
-                .waitSeconds(1)
-                .splineTo(new Vector2d(38, -38), Math.toRadians(-90))     // was 90°
-                .waitSeconds(1)
-                .splineTo(new Vector2d(-24, -24), Math.toRadians(-135))   // was 135°
-                .build());
-
                 //                 Call your Roadrunner movements like this below (as of 10/22/25 roadrunner has not
 //                 been tuned, so avoid using it for now)
 //                .splineToConstantHeading(new Vector2d(20, 30), Math.toRadians(180))
