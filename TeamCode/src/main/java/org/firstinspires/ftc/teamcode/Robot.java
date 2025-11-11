@@ -260,15 +260,15 @@ public class Robot {
     }
 
     public void arcadeDrive(Gamepad gamepad1) {
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
         if (!atagAlign) {
             double rx = -0.75 * gamepad1.right_stick_x;
 
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-y, x), rx));
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(y, x), rx));
         }
         if (atagAlign) {
-            atagAlign(-y, x);
+            atagAlign(y, x);
         }
     }
     public void atagAlign(double x, double y) {
