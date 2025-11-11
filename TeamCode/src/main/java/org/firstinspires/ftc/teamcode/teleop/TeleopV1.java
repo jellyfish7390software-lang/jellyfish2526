@@ -27,11 +27,6 @@ public class TeleopV1 extends LinearOpMode {
         bot.intakePower(0);
         bot.setGamepads(gamepad1, gamepad2);
 
-        waitForStart();
-
-        Robot.runCheckLoop = false;
-        Robot.runScoringLoop = true;
-
         VisionPortal tag = new VisionPortal.Builder()
                 .addProcessor(bot.tagProcessor)
                 .setCamera(bot.tagCam)
@@ -39,7 +34,13 @@ public class TeleopV1 extends LinearOpMode {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
-        tag.stopStreaming();
+        waitForStart();
+
+        Robot.runCheckLoop = false;
+        Robot.runScoringLoop = true;
+
+
+//        tag.stopStreaming();
 
         while (opModeIsActive()) {
             bot.scoringLoopTele();
