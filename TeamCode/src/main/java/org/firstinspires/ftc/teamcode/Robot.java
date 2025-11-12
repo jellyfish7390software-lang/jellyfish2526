@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.sax.StartElementListener;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.RaceAction;
@@ -24,6 +27,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -51,8 +55,9 @@ public class Robot {
     public DistanceSensor distance, intakeDistance;
 
     public Gamepad gamepad1, gamepad2;
+    public VoltageSensor voltage;
 
-    public static double p = 10, i = 0, d = 0, f = 13.25;
+    public static double p = 10, i = 0, d = 0, f = 12;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
     public static double tP = 0.003, tI = 0, tD = 0;
@@ -98,6 +103,8 @@ public class Robot {
 
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
         distance = hardwareMap.get(DistanceSensor.class, "distance");
+        voltage = hardwareMap.voltageSensor.iterator().next();
+
 
 //        TODO: (10/31) Add correct config name once mounted
         intakeDistance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "intakeDistance");
@@ -142,8 +149,8 @@ public class Robot {
         transferTarget += increment;
     }
     public void scoringLoopTele() {
-        transferPID.setPID(tP, tI, tD);
-        shooter.setVelocityPIDFCoefficients(p, i, d, f);
+//        transferPID.setPID(tP, tI, tD);
+//        shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
         double vel = shooter.getVelocity() / ticksPerRev;
 
@@ -158,7 +165,12 @@ public class Robot {
     public class ScoringLoop implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            transferPID.setPID(tP, tI, tD);
+//            transferPID.setPID(tP, tI, tD);
+            if (voltage.getVoltage() < 13.6) {
+                f = 12 + 0.65*13.6/voltage.getVoltage();
+            }
+            else f = 12 - 13.6/voltage.getVoltage();
+
             shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
             double vel = shooter.getVelocity() / ticksPerRev;
@@ -243,24 +255,48 @@ public class Robot {
             telemetry.update();
         }));
     }
+    public Action waitUntilReady(Gamepad gamepad, Telemetry telemetry) {
+        return new RaceAction(new WaitUntilAction(() -> Math.abs(getRpm() - targetVel) <50), scoringLoop(), driveAction(gamepad), new LoopAction(() -> {
+            telemetry.addData("Vel", getRpm());
+            telemetry.addData("Target", Robot.targetVel);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <50);
+            telemetry.update();
+        }));
+    }
+    public Action waitUntilReady() {
+        return new RaceAction(new WaitUntilAction(() -> Math.abs(getRpm() - targetVel) < 50), scoringLoop());
+    }
+    public Action waitForIntake(Gamepad gamepad, Telemetry telemetry) {
+        return new RaceAction(scoringLoop(), driveAction(gamepad), telemetryPacket -> {
+            telemetry.addData("Vel", getRpm());
+            telemetry.addData("Target", Robot.targetVel);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <50);
+            telemetry.update();
+            return Math.abs(getRpm() - targetVel) > 40;
+        });
+    }
     /// New
     public Action shootFull(Telemetry telemetry) {
-        return new SequentialAction(turnTransferAction(),
-                sleepWithPIDTeleop(0.5, gamepad1, telemetry),
-                new InstantAction(() -> intakePower(1)),
-                sleepWithPIDTeleop(0.75, gamepad1, telemetry),
+        return new SequentialAction(waitUntilReady(gamepad1, telemetry),
                 turnTransferAction(),
-                sleepWithPIDTeleop(1, gamepad1, telemetry),
+                sleepWithPIDTeleop(0.5, gamepad1, telemetry),
+                waitForIntake(gamepad1, telemetry),
+                new InstantAction(() -> intakePower(1)),
+                turnTransferAction(),
+                sleepWithPIDTeleop(0.5, gamepad1, telemetry),
+                waitForIntake(gamepad1, telemetry),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
     public Action shootFull() {
-        return new SequentialAction(turnTransferAction(),
-                sleepWithPID(0.5),
-                new InstantAction(() -> intakePower(1)),
-                sleepWithPID(0.75),
+        return new SequentialAction(waitUntilReady(),
                 turnTransferAction(),
-                sleepWithPID(1),
+                sleepWithPID(0.75),
+                waitUntilReady(),
+                new InstantAction(() -> intakePower(1)),
+                turnTransferAction(),
+                sleepWithPID(0.55),
+                waitUntilReady(),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
