@@ -198,6 +198,11 @@ public class Robot {
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
     }
+    public Action autoCheckTransfer() {
+        return new LoopAction(() -> {
+            if (runCheckLoop) checkTransferTele();
+        });
+    }
     public void checkTransferTele() {
         double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
         Robot.ballDist = distance.getDistance(DistanceUnit.MM);

@@ -35,46 +35,46 @@ public class redSideAuto extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(3300))
+//                .afterTime(0.0, a.setShooterVelocity(3600))
                 .waitSeconds(0.5)
                 .setReversed(false)
                 .strafeTo(new Vector2d(-31, 31))
 
-                .afterTime(0.25, a.incrementTransfer(8192/3))
-                .afterTime(1.25, a.setIntakePower(0.5))
-                .afterTime(2.25, a.incrementTransfer(8192/3))
-                .afterTime(3.25, a.incrementTransfer(8192/3))
+//                .afterTime(0.25, bot.shootFull())
 
                 .waitSeconds(3.75)
                 .setReversed(true)
+                .afterTime(0, a.setIntakePower(1))
+                .afterTime(0.5, a.startCheckLoop())
                 .splineToLinearHeading(new Pose2d(-12, 38, Math.toRadians(90)), Math.toRadians(90))
+                .strafeTo(new Vector2d(-12, 50))
                 .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
+                .afterTime(0, a.stopCheckLoop())
 
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
-
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                //                 Call your Roadrunner movements like this below (as of 10/22/25 roadrunner has not
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+//                .waitSeconds(3)
+//                .afterTime(0, bot.shootFull())
+//
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
+//                .waitSeconds(3)
+//                .afterTime(0, bot.shootFull())
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+//                .waitSeconds(3)
+//                .afterTime(0, bot.shootFull())
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
+//                .waitSeconds(3)
+//                .afterTime(0, bot.shootFull())
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+//                //                 Call your Roadrunner movements like this below (as of 10/22/25 roadrunner has not
 //                 been tuned, so avoid using it for now)
 //                .splineToConstantHeading(new Vector2d(20, 30), Math.toRadians(180))
 
@@ -101,6 +101,6 @@ public class redSideAuto extends LinearOpMode {
 
         // Runs the drive action you created in parallel with the PIDF loops for the shooter and transfer.
         // Without including the bot.scoringLoop(), the shooter and transfer would not update.
-        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.checkTransfer()));
+        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.autoCheckTransfer()));
     }
 }
