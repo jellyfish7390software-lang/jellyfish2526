@@ -49,28 +49,28 @@ public class redSideAuto extends LinearOpMode {
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-12, 38, Math.toRadians(90)), Math.toRadians(90))
                 .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
+                .afterTime(0, () -> bot.shootFull())
 
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
                 .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
+                .afterTime(0, () -> bot.shootFull())
 
 
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
                 .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
+                .afterTime(0, () -> bot.shootFull())
 
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
                 .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
+                .afterTime(0, () -> bot.shootFull())
 
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
                 .waitSeconds(3)
-                .afterTime(0, bot.shootFull())
+                .afterTime(0, () -> bot.shootFull())
 
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
