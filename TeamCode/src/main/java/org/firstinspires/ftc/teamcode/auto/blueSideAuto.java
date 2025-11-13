@@ -46,9 +46,10 @@ public class blueSideAuto extends LinearOpMode {
                 .setReversed(true)
                 .afterTime(0, a.setIntakePower(1))
                 .afterTime(0.5, a.startCheckLoop())
-                .splineToLinearHeading(new Pose2d(-12, -38, Math.toRadians(270)), Math.toRadians(270))
-                .strafeTo(new Vector2d(-12, -50))
-                .waitSeconds(3)
+                .strafeToLinearHeading(new Vector2d(-18, -38), Math.toRadians(270))
+                .waitSeconds(1)
+                .strafeTo(new Vector2d(-22, -78))
+                .waitSeconds(5)
                 .afterTime(0, a.stopCheckLoop())
 
 
@@ -93,6 +94,6 @@ public class blueSideAuto extends LinearOpMode {
 
         // Runs the drive action you created in parallel with the PIDF loops for the shooter and transfer.
         // Without including the bot.scoringLoop(), the shooter and transfer would not update.
-        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.checkTransfer()));
+        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.autoCheckTransfer()));
     }
 }
