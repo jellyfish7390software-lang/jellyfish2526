@@ -52,8 +52,10 @@ public class Robot {
     public static double p = 10, i = 0, d = 0, f = 12;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
-    public static double tP = 0.01, tI = 0, tD = 0;
+    public static double tP = 0.0015, tI = 0, tD = 0;
     public static double hP = -0.04, hI = 0, hD = 0;
+
+    public static double leftOffset = -1.5, rightOffset = 1;
     public PIDController hPID = new PIDController(hP, hI, hD);
     public static boolean atagAlign = false;
 
@@ -141,8 +143,11 @@ public class Robot {
         transferTarget += increment;
     }
     public void scoringLoopTele() {
-//        transferPID.setPID(tP, tI, tD);
-//        shooter.setVelocityPIDFCoefficients(p, i, d, f);
+            transferPID.setPID(tP, tI, tD);
+
+        f = 12*13.6/voltage.getVoltage();
+
+        shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
         double vel = shooter.getVelocity() / ticksPerRev;
 
@@ -157,7 +162,7 @@ public class Robot {
     public class ScoringLoop implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-//            transferPID.setPID(tP, tI, tD);
+            transferPID.setPID(tP, tI, tD);
 
             f = 12*13.6/voltage.getVoltage();
 
@@ -336,9 +341,12 @@ public class Robot {
     public void atagAlign(double x, double y) {
         hPID.setPID(hP, hI, hD);
         double hPower = 0;
-        if (!tagProcessor.getDetections().isEmpty() && (tagProcessor.getDetections().get(0).id == 20 || tagProcessor.getDetections().get(0).id
-                == 24)) {
-            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, 0);
+        if (!tagProcessor.getDetections().isEmpty() && (tagProcessor.getDetections().get(0).id == 20)) {
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, leftOffset);
+        }
+        else if (!tagProcessor.getDetections().isEmpty() && tagProcessor.getDetections().get(0).id
+                == 24) {
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, rightOffset);
         }
 
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(x,y), -hPower));
