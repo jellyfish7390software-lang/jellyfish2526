@@ -47,50 +47,49 @@ public class redSideAuto extends LinearOpMode {
 
                 .waitSeconds(3.75)
                 .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-12, 38, Math.toRadians(90)), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d (-12, 38), Math.toRadians(90))
                 .waitSeconds(3)
-                .afterTime(0, () -> bot.shootFull())
+//              //  .afterTime(0, () -> bot.shootFull())
 
                 .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+                .strafeToLinearHeading(new Vector2d(-24, 24), Math.toRadians(135))
                 .waitSeconds(3)
-                .afterTime(0, () -> bot.shootFull())
-
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(3)
-                .afterTime(0, () -> bot.shootFull())
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                .waitSeconds(3)
-                .afterTime(0, () -> bot.shootFull())
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(3)
-                .afterTime(0, () -> bot.shootFull())
-
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                //                 Call your Roadrunner movements like this below (as of 10/22/25 roadrunner has not
-//                 been tuned, so avoid using it for now)
-//                .splineToConstantHeading(new Vector2d(20, 30), Math.toRadians(180))
-
-                /* This is how you would call a simple time based drivetrain movement, each input of the
-               function drive.setPowers() is the power of the motor, 1.0 going forwards at max speed.
-               Return false is very important, make sure it is always there. I know the arrow and stuff
-               makes no sense, but just go with it for now and I'll explain on Friday.
-                 */
-
-                /* .afterTime has the code inside it run how ever many seconds you inputted after the last
-                Roadrunner drivetrain movement (NOT the last .afterTime), so the transfer increment would
-                run 2 seconds after the shooter command, not 3
-                 */
-
-                // Transfer encoder has 8192 ticks for one revolution, so this turns it 1/3 of the way
-
+//                .afterTime(0, () -> bot.shootFull())
+//
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
+//                .waitSeconds(3)
+//                .afterTime(0, () -> bot.shootFull())
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+//                .waitSeconds(3)
+//                .afterTime(0, () -> bot.shootFull())
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
+//                .waitSeconds(3)
+//                .afterTime(0, () -> bot.shootFull())
+//
+//                .setReversed(true)
+//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+//                //                 Call your Roadrunner movements like this below (as of 10/22/25 roadrunner has not
+////                 been tuned, so avoid using it for now)
+////                .splineToConstantHeading(new Vector2d(20, 30), Math.toRadians(180))
+//
+//                /* This is how you would call a simple time based drivetrain movement, each input of the
+//               function drive.setPowers() is the power of the motor, 1.0 going forwards at max speed.
+//               Return false is very important, make sure it is always there. I know the arrow and stuff
+//               makes no sense, but just go with it for now and I'll explain on Friday.
+//                 */
+//
+//                /* .afterTime has the code inside it run how ever many seconds you inputted after the last
+//                Roadrunner drivetrain movement (NOT the last .afterTime), so the transfer increment would
+//                run 2 seconds after the shooter command, not 3
+//                 */
+//
+//                // Transfer encoder has 8192 ticks for one revolution, so this turns it 1/3 of the way
 
                 .afterTime(30.0, telemetryPacket -> {
                     Robot.runScoringLoop = false;
@@ -101,6 +100,6 @@ public class redSideAuto extends LinearOpMode {
 
         // Runs the drive action you created in parallel with the PIDF loops for the shooter and transfer.
         // Without including the bot.scoringLoop(), the shooter and transfer would not update.
-        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.checkTransfer()));
+        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.autoCheckTransfer()));
     }
 }
