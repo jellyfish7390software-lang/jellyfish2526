@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -35,27 +37,33 @@ public class redSideAuto extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-              //  .afterTime(0.0, a.setShooterVelocity(3300))
+                .afterTime(0.0, a.setShooterVelocity(3875))
                 .waitSeconds(0.5)
                 .setReversed(false)
-                .strafeTo(new Vector2d(-31, 31))
+                .strafeTo(new Vector2d(-17, 27))
 
-                .afterTime(0.25, a.incrementTransfer(8192/3))
-                .afterTime(1.25, a.setIntakePower(0.5))
-                .afterTime(2.25, a.incrementTransfer(8192/3))
-                .afterTime(3.25, a.incrementTransfer(8192/3))
+                .afterTime(0.25, bot.shootFull())
 
                 .waitSeconds(3.75)
+                .afterTime(0, a.setShooterVelocity(0))
+                .afterTime(0.01, a.startCheckLoop())
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d (-10, 38), Math.toRadians(90))
-                .waitSeconds(5)
-//.afterTime(0, () -> bot.shootFull())
-                .afterTime(0, a.stopCheckLoop())
+//                .strafeToLinearHeading(new Vector2d (-10, 22), Math.toRadians(110), new TranslationalVelConstraint(40))
+//                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(-12.5, 52), Math.toRadians(100))
+                .waitSeconds(1)
+                .afterTime(0, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+
+                .afterTime(0.01, a.setShooterVelocity(3850))
+                .strafeToLinearHeading(new Vector2d(-15, 25), Math.toRadians(140))
+                .afterTime(0.25, bot.shootFull())
+                .waitSeconds(3.75)
+
 //
 //                .setReversed(true)
 //                .strafeToLinearHeading(new Vector2d(-24, 24), Math.toRadians(135))
 //                .waitSeconds(3)
-////                .afterTime(0, () -> bot.shootFull())
+//                .afterTime(0, () -> bot.shootFull())
 //
 //
 //                .setReversed(true)

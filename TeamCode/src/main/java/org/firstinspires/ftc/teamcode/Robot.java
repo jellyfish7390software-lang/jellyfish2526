@@ -264,16 +264,19 @@ public class Robot {
         }));
     }
     public Action waitUntilReady() {
-        return new RaceAction(new WaitUntilAction(() -> Math.abs(getRpm() - targetVel) < 50), scoringLoop());
+        return new RaceAction(new WaitUntilAction(() -> Math.abs(getRpm() - targetVel) < 30), scoringLoop());
     }
     public Action waitForIntake(Gamepad gamepad, Telemetry telemetry) {
         return new RaceAction(scoringLoop(), driveAction(gamepad), telemetryPacket -> {
             telemetry.addData("Vel", getRpm());
             telemetry.addData("Target", Robot.targetVel);
-            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <50);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
             telemetry.update();
-            return Math.abs(getRpm() - targetVel) > 50;
+            return Math.abs(getRpm() - targetVel) > 30;
         });
+    }
+    public Action waitForIntake() {
+        return new RaceAction(scoringLoop(),telemetryPacket -> Math.abs(getRpm() - targetVel) > 30);
     }
     /// New
     public Action shootFull(Telemetry telemetry) {
@@ -289,14 +292,14 @@ public class Robot {
                 new InstantAction(() -> ballCount = 0));
     }
     public Action shootFull() {
-        return new SequentialAction(waitUntilReady(),
+        return new SequentialAction(waitForIntake(),
                 turnTransferAction(),
                 sleepWithPID(0.75),
                 new InstantAction(() -> intakePower(1)),
-                waitUntilReady(),
+                waitForIntake(),
                 turnTransferAction(),
                 sleepWithPID(0.55),
-                waitUntilReady(),
+                waitForIntake(),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
