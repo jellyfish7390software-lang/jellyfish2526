@@ -1,24 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.sax.StartElementListener;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -31,8 +25,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-import org.ejml.data.DMatrixSparseCSC;
-import org.ejml.dense.row.mult.MatrixMatrixMult_CDRM;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -60,8 +52,10 @@ public class Robot {
     public static double p = 10, i = 0, d = 0, f = 12;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
-    public static double tP = 0.003, tI = 0, tD = 0;
+    public static double tP = 0.0015, tI = 0, tD = 0;
     public static double hP = -0.04, hI = 0, hD = 0;
+
+    public static double leftOffset = -1.5, rightOffset = 1;
     public PIDController hPID = new PIDController(hP, hI, hD);
     public static boolean atagAlign = false;
 
@@ -149,8 +143,11 @@ public class Robot {
         transferTarget += increment;
     }
     public void scoringLoopTele() {
-//        transferPID.setPID(tP, tI, tD);
-//        shooter.setVelocityPIDFCoefficients(p, i, d, f);
+            transferPID.setPID(tP, tI, tD);
+
+        f = 12*13.6/voltage.getVoltage();
+
+        shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
         double vel = shooter.getVelocity() / ticksPerRev;
 
@@ -165,11 +162,9 @@ public class Robot {
     public class ScoringLoop implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-//            transferPID.setPID(tP, tI, tD);
-            if (voltage.getVoltage() < 13.6) {
-                f = 12 + 0.65*13.6/voltage.getVoltage();
-            }
-            else f = 12 - 13.6/voltage.getVoltage();
+            transferPID.setPID(tP, tI, tD);
+
+            f = 12*13.6/voltage.getVoltage();
 
             shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
@@ -189,10 +184,10 @@ public class Robot {
         }
     }
     public void turnTransfer() {
-        transferTarget += 2000/3;
+        transferTarget += 8192/3;
     }
     public Action turnTransferAction() {
-        return new InstantAction(() -> transferTarget += 2000/3);
+        return new InstantAction(() -> transferTarget += 8192/3);
     }
     public void setGamepads(Gamepad gamepad1, Gamepad gamepad2) {
         this.gamepad1 = gamepad1;
@@ -277,7 +272,7 @@ public class Robot {
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <50);
             telemetry.update();
-            return Math.abs(getRpm() - targetVel) > 40;
+            return Math.abs(getRpm() - targetVel) > 50;
         });
     }
     /// New
@@ -285,8 +280,8 @@ public class Robot {
         return new SequentialAction(waitUntilReady(gamepad1, telemetry),
                 turnTransferAction(),
                 sleepWithPIDTeleop(0.5, gamepad1, telemetry),
-                waitForIntake(gamepad1, telemetry),
                 new InstantAction(() -> intakePower(1)),
+                waitForIntake(gamepad1, telemetry),
                 turnTransferAction(),
                 sleepWithPIDTeleop(0.5, gamepad1, telemetry),
                 waitForIntake(gamepad1, telemetry),
@@ -297,8 +292,8 @@ public class Robot {
         return new SequentialAction(waitUntilReady(),
                 turnTransferAction(),
                 sleepWithPID(0.75),
-                waitUntilReady(),
                 new InstantAction(() -> intakePower(1)),
+                waitUntilReady(),
                 turnTransferAction(),
                 sleepWithPID(0.55),
                 waitUntilReady(),
@@ -326,6 +321,18 @@ public class Robot {
         if (atagAlign) {
             atagAlign(-y, x);
         }
+        if (gamepad1.dpad_up) {
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(1, 0),0));
+        }
+        if (gamepad1.dpad_down) {
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-1, 0),0));
+        }
+        if (gamepad1.dpad_left) {
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 1),0));
+        }
+        if (gamepad1.dpad_right) {
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, -1),0));
+        }
     }
     public double getRpm() {
         double vel = shooter.getVelocity() / ticksPerRev;
@@ -334,9 +341,12 @@ public class Robot {
     public void atagAlign(double x, double y) {
         hPID.setPID(hP, hI, hD);
         double hPower = 0;
-        if (!tagProcessor.getDetections().isEmpty() && (tagProcessor.getDetections().get(0).id == 20 || tagProcessor.getDetections().get(0).id
-                == 24)) {
-            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, 0);
+        if (!tagProcessor.getDetections().isEmpty() && (tagProcessor.getDetections().get(0).id == 20)) {
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, leftOffset);
+        }
+        else if (!tagProcessor.getDetections().isEmpty() && tagProcessor.getDetections().get(0).id
+                == 24) {
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, rightOffset);
         }
 
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(x,y), -hPower));

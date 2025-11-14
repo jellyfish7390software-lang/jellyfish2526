@@ -47,14 +47,12 @@ public class TeleopV1 extends LinearOpMode {
             bot.scoringLoopTele();
             bot.arcadeDrive(gamepad1);
 
-            if (gamepad1.bWasPressed()) {
+            if (gamepad1.xWasPressed()) {
                 bot.setShooterVelocity(3900);
+            }
+            if (gamepad1.bWasPressed() && Math.abs(bot.getRpm() - Robot.targetVel) < 50) {
                 Robot.runCheckLoop = true;
-                Actions.runBlocking(new RaceAction(bot.sleepWithPIDTeleop(3, gamepad1, telemetry), new LoopAction(() -> {
-                    telemetry.addData("Vel", bot.getRpm());
-                    telemetry.addData("Target", Robot.targetVel);
-                    telemetry.update();
-                })));
+
                 Actions.runBlocking(bot.shootFull(telemetry));
                 Actions.runBlocking(bot.sleepWithPIDTeleop(1.5, gamepad1, telemetry));
                 bot.setShooterVelocity(0);
