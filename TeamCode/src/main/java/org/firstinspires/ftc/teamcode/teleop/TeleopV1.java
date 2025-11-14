@@ -50,6 +50,9 @@ public class TeleopV1 extends LinearOpMode {
             if (gamepad1.xWasPressed()) {
                 bot.setShooterVelocity(3900);
             }
+            if (gamepad1.yWasPressed()) {
+                bot.setShooterVelocity(5000);
+            }
             if (gamepad1.bWasPressed() && Math.abs(bot.getRpm() - Robot.targetVel) < 50) {
                 Robot.runCheckLoop = true;
 
@@ -68,7 +71,7 @@ public class TeleopV1 extends LinearOpMode {
             if (gamepad1.left_trigger > 0) {
                 bot.intakePower(-gamepad1.left_trigger);
             }
-            if (gamepad1.y) {
+            if (gamepad2.y) {
                 tag.resumeStreaming();
                 Robot.atagAlign = true;
                 if (!bot.tagProcessor.getDetections().isEmpty() && (bot.tagProcessor.getDetections().get(0).id == 20 || bot.tagProcessor.getDetections().get(0).id

@@ -46,7 +46,7 @@ public class blueSideAuto extends LinearOpMode {
                 .setReversed(true)
                 .afterTime(0, a.setIntakePower(1))
                 .afterTime(0.5, a.startCheckLoop())
-                .strafeToLinearHeading(new Vector2d(-18, -38), Math.toRadians(270))
+                .strafeToLinearHeading(new Vector2d(-18, -38), Math.toRadians(255))
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(-22, -78))
                 .waitSeconds(5)

@@ -52,7 +52,7 @@ public class Robot {
     public static double p = 10, i = 0, d = 0, f = 12;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
-    public static double tP = 0.0015, tI = 0, tD = 0;
+    public static double tP = 0.00085, tI = 0, tD = 0;
     public static double hP = -0.04, hI = 0, hD = 0;
 
     public static double leftOffset = -1.5, rightOffset = 1;
@@ -313,6 +313,7 @@ public class Robot {
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
+        double heading = 0;
         if (!atagAlign) {
             double rx = -0.75 * gamepad1.right_stick_x;
 
@@ -327,11 +328,16 @@ public class Robot {
         if (gamepad1.dpad_down) {
             drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-1, 0),0));
         }
+        if (gamepad1.dpadLeftWasPressed() || gamepad1.dpadRightWasPressed()) {
+            heading = drive.localizer.getPose().heading.toDouble();
+        }
         if (gamepad1.dpad_left) {
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 1),0));
+            double hPower = hPID.calculate(drive.localizer.getPose().heading.toDouble(), heading);
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 1),hPower));
         }
         if (gamepad1.dpad_right) {
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, -1),0));
+            double hPower = hPID.calculate(drive.localizer.getPose().heading.toDouble(), heading);
+            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, -1), hPower));
         }
     }
     public double getRpm() {
