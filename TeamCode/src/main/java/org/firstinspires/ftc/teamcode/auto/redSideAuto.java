@@ -35,7 +35,7 @@ public class redSideAuto extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(3300))
+              //  .afterTime(0.0, a.setShooterVelocity(3300))
                 .waitSeconds(0.5)
                 .setReversed(false)
                 .strafeTo(new Vector2d(-31, 31))
@@ -47,14 +47,15 @@ public class redSideAuto extends LinearOpMode {
 
                 .waitSeconds(3.75)
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d (-12, 38), Math.toRadians(90))
-                .waitSeconds(3)
-//              //  .afterTime(0, () -> bot.shootFull())
-
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(-24, 24), Math.toRadians(135))
-                .waitSeconds(3)
-//                .afterTime(0, () -> bot.shootFull())
+                .strafeToLinearHeading(new Vector2d (-10, 38), Math.toRadians(90))
+                .waitSeconds(5)
+//.afterTime(0, () -> bot.shootFull())
+                .afterTime(0, a.stopCheckLoop())
+//
+//                .setReversed(true)
+//                .strafeToLinearHeading(new Vector2d(-24, 24), Math.toRadians(135))
+//                .waitSeconds(3)
+////                .afterTime(0, () -> bot.shootFull())
 //
 //
 //                .setReversed(true)
