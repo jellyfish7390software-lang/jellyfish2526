@@ -37,26 +37,26 @@ public class redSideAuto extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(3875))
+                .afterTime(0.0, a.setShooterVelocity(3600))
                 .waitSeconds(0.5)
                 .setReversed(false)
-                .strafeTo(new Vector2d(-17, 27))
+                .strafeToLinearHeading(new Vector2d(-34, 36), Math.toRadians(140))
 
-                .afterTime(0.25, bot.shootFull())
+                .afterTime(0.25, bot.shootFullAuto(telemetry))
 
                 .waitSeconds(3.75)
                 .afterTime(0, a.setShooterVelocity(0))
                 .afterTime(0.01, a.startCheckLoop())
                 .setReversed(true)
-//                .strafeToLinearHeading(new Vector2d (-10, 22), Math.toRadians(110), new TranslationalVelConstraint(40))
-//                .waitSeconds(0.5)
-                .strafeToLinearHeading(new Vector2d(-12.5, 52), Math.toRadians(100))
+                .strafeToLinearHeading(new Vector2d (-9, 22), Math.toRadians(90))
+                .strafeToConstantHeading(new Vector2d(-9, 56))
                 .waitSeconds(1)
+
                 .afterTime(0, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
 
-                .afterTime(0.01, a.setShooterVelocity(3850))
-                .strafeToLinearHeading(new Vector2d(-15, 25), Math.toRadians(140))
-                .afterTime(0.25, bot.shootFull())
+                .afterTime(0.01, a.setShooterVelocity(3675))
+                .strafeToLinearHeading(new Vector2d(-28, 28), Math.toRadians(134))
+                .afterTime(0.25, bot.shootFullAuto(telemetry))
                 .waitSeconds(3.75)
 
 //

@@ -53,7 +53,7 @@ public class TeleopV1 extends LinearOpMode {
             if (gamepad1.yWasPressed()) {
                 bot.setShooterVelocity(5000);
             }
-            if (gamepad1.bWasPressed() && Math.abs(bot.getRpm() - Robot.targetVel) < 50) {
+            if (gamepad1.bWasPressed() && Math.abs(bot.getRpm() - Robot.targetVel) < 30) {
                 Robot.runCheckLoop = true;
 
                 Actions.runBlocking(bot.shootFull(telemetry));
@@ -87,6 +87,7 @@ public class TeleopV1 extends LinearOpMode {
 
             telemetry.addData("Vel", bot.getRpm());
             telemetry.addData("Target", Robot.targetVel);
+            telemetry.addData("ShooterPower", bot.shooter.getPower());
             telemetry.addData("runCheckLoop", Robot.runCheckLoop);
             telemetry.addData("BallDist", Robot.ballDist);
             telemetry.addData("timer", bot.timer.seconds());

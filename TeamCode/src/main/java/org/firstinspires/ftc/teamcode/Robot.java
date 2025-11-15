@@ -27,6 +27,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -256,10 +257,10 @@ public class Robot {
         }));
     }
     public Action waitUntilReady(Gamepad gamepad, Telemetry telemetry) {
-        return new RaceAction(new WaitUntilAction(() -> Math.abs(getRpm() - targetVel) <50), scoringLoop(), driveAction(gamepad), new LoopAction(() -> {
+        return new RaceAction(new WaitUntilAction(() -> Math.abs(getRpm() - targetVel) <30), scoringLoop(), driveAction(gamepad), new LoopAction(() -> {
             telemetry.addData("Vel", getRpm());
             telemetry.addData("Target", Robot.targetVel);
-            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <50);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
             telemetry.update();
         }));
     }
@@ -275,8 +276,13 @@ public class Robot {
             return Math.abs(getRpm() - targetVel) > 30;
         });
     }
-    public Action waitForIntake() {
-        return new RaceAction(scoringLoop(),telemetryPacket -> Math.abs(getRpm() - targetVel) > 30);
+    public Action waitForIntake(Telemetry telemetry) {
+        return new RaceAction(scoringLoop(),telemetryPacket -> {
+            telemetry.addData("Vel", getRpm());
+            telemetry.addData("Target", Robot.targetVel);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
+            telemetry.update();
+            return Math.abs(getRpm() - targetVel) > 30;});
     }
     /// New
     public Action shootFull(Telemetry telemetry) {
@@ -291,15 +297,15 @@ public class Robot {
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
-    public Action shootFull() {
-        return new SequentialAction(waitForIntake(),
+    public Action shootFullAuto(Telemetry telemetry) {
+        return new SequentialAction(waitForIntake(telemetry),
                 turnTransferAction(),
                 sleepWithPID(0.75),
                 new InstantAction(() -> intakePower(1)),
-                waitForIntake(),
+                waitForIntake(telemetry),
                 turnTransferAction(),
                 sleepWithPID(0.55),
-                waitForIntake(),
+                waitForIntake(telemetry),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
