@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -50,7 +51,13 @@ public class Robot {
     public Gamepad gamepad1, gamepad2;
     public VoltageSensor voltage;
 
-    public static double p = 10, i = 0, d = 0, f = 12;
+    public static double p = 0.002, i = 0, d = 0, f = 0.000265;
+    public static double lastP = p, lastI = i, lastD = d, lastF = f;
+
+    public static double FILTER_CUTOFF = 5;   // Hz (adjustable in dashboard)
+    private double filteredTicksPerSec = 0;
+
+    public static double dt;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
     public static double tP = 0.00085, tI = 0, tD = 0;
@@ -60,7 +67,9 @@ public class Robot {
     public PIDController hPID = new PIDController(hP, hI, hD);
     public static boolean atagAlign = false;
 
-    public static double ticksPerRev = 28.0;
+    public static double ticksPerRev = 8192.0;
+
+    public double lastTicks = 0, thisTicks = 0;
 
     public static double ballDist = 0;
 
@@ -72,16 +81,19 @@ public class Robot {
     public static boolean runCheckLoop = false;
 
     public PIDController transferPID;
+    public PIDFController shooterPID = new PIDFController(p, i, d, f);
 
     public static double TAG_HEIGHT = 38.75-9.25;
     public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
-    public static int closeRPM = 3850;
-    public static int farRPM = 4300;
+    public static int closeRPM = 2000;
+    public static int farRPM = 3800;
 
     public static int ballCount = 0;
     public static boolean ShouldTurn = false;
+
+    public static double heading;
 
     public ElapsedTime timer = new ElapsedTime();
 
@@ -110,7 +122,7 @@ public class Robot {
 //
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -119,9 +131,14 @@ public class Robot {
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
 
         transferPID = new PIDController(tP, tI, tD);
+        shooterPID.setPIDF(p, i, d, f);
         shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
         timer.reset();
+
+        lastTicks = shooter.getCurrentPosition();
+
+        ElapsedTime timer = new ElapsedTime();
 
     }
 
@@ -144,42 +161,86 @@ public class Robot {
         transferTarget += increment;
     }
     public void scoringLoopTele() {
-            transferPID.setPID(tP, tI, tD);
+        transferPID.setPID(tP, tI, tD);
 
-        f = 12*13.6/voltage.getVoltage();
+        thisTicks = -shooter.getCurrentPosition();
 
-        shooter.setVelocityPIDFCoefficients(p, i, d, f);
+        if (p != lastP || i != lastI || d != lastD || f != lastF) {
+            shooterPID.setPIDF(p, i, d, f);
+            lastP = p;
+            lastI = i;
+            lastD = d;
+            lastF = f;
+        }
 
-        double vel = shooter.getVelocity() / ticksPerRev;
+        // Raw speed calculation
+        double rawTicksPerSec = (thisTicks - lastTicks) / dt;
 
-        shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
+        double rawRPM = rawTicksPerSec *(60/ticksPerRev);
+
+        // Low Pass Filter (RC filter)
+        double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
+        double alpha = dt / (RC + dt);
+        filteredTicksPerSec = filteredTicksPerSec + alpha * (rawTicksPerSec - filteredTicksPerSec);
+
+        double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
+
+        double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
+        shooter.setPower(shooterPower);
 
         double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
         transfer.setPower(transferPower);
 
         intakePower(intakePower);
+
+        lastTicks = thisTicks;
+        dt = timer.seconds();
+        timer.reset();
     }
 
     public class ScoringLoop implements Action {
+        public ScoringLoop() {
+            timer.reset();
+            dt = timer.seconds();
+        }
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             transferPID.setPID(tP, tI, tD);
+            thisTicks = -shooter.getCurrentPosition();
 
-            f = 12*13.6/voltage.getVoltage();
+            if (p != lastP || i != lastI || d != lastD || f != lastF) {
+                shooterPID.setPIDF(p, i, d, f);
+                lastP = p;
+                lastI = i;
+                lastD = d;
+                lastF = f;
+            }
 
-            shooter.setVelocityPIDFCoefficients(p, i, d, f);
+            // Raw speed calculation
+            double rawTicksPerSec = (thisTicks - lastTicks) / dt;
 
-            double vel = shooter.getVelocity() / ticksPerRev;
+            double rawRPM = rawTicksPerSec *(60/ticksPerRev);
 
-            shooter.setVelocity((targetVel / 60.0) * ticksPerRev);
+            // Low Pass Filter (RC filter)
+            double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
+            double alpha = dt / (RC + dt);
+            filteredTicksPerSec = filteredTicksPerSec + alpha * (rawTicksPerSec - filteredTicksPerSec);
 
-//            double transferPower = transferPID.calculate(transfer.getCurrentPosition(), -transferTarget);
+            double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
+
+            double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
+            shooter.setPower(shooterPower);
+
             double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
             transfer.setPower(transferPower);
 
             Robot.ballDist = distance.getDistance(DistanceUnit.MM);
 
             intakePower(intakePower);
+
+            lastTicks = thisTicks;
+            dt = timer.seconds();
+            timer.reset();
 
             return Robot.runScoringLoop;
         }
@@ -271,9 +332,9 @@ public class Robot {
         return new RaceAction(scoringLoop(), driveAction(gamepad), telemetryPacket -> {
             telemetry.addData("Vel", getRpm());
             telemetry.addData("Target", Robot.targetVel);
-            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <100);
             telemetry.update();
-            return Math.abs(getRpm() - targetVel) > 30;
+            return Math.abs(getRpm() - targetVel) > 100;
         });
     }
     public Action waitForIntake(Telemetry telemetry) {
@@ -322,7 +383,7 @@ public class Robot {
     public void arcadeDrive(Gamepad gamepad1) {
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
-        double heading = 0;
+        heading = 0;
         if (!atagAlign) {
             double rx = -0.75 * gamepad1.right_stick_x;
 
@@ -357,11 +418,11 @@ public class Robot {
         hPID.setPID(hP, hI, hD);
         double hPower = 0;
         if (!tagProcessor.getDetections().isEmpty() && (tagProcessor.getDetections().get(0).id == 20)) {
-            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, leftOffset);
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.bearing, 0);
         }
         else if (!tagProcessor.getDetections().isEmpty() && tagProcessor.getDetections().get(0).id
                 == 24) {
-            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.pitch, rightOffset);
+            hPower = hPID.calculate(tagProcessor.getDetections().get(0).ftcPose.bearing, 0);
         }
 
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(x,y), -hPower));

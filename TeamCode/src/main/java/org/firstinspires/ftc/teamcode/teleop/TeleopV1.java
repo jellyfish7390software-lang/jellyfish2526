@@ -39,6 +39,8 @@ public class TeleopV1 extends LinearOpMode {
 
         Robot.runCheckLoop = false;
         Robot.runScoringLoop = true;
+        boolean shooterOn = false;
+        boolean closeMode = true;
 
 
 //        tag.stopStreaming();
@@ -47,18 +49,34 @@ public class TeleopV1 extends LinearOpMode {
             bot.scoringLoopTele();
             bot.arcadeDrive(gamepad1);
 
-            if (gamepad1.xWasPressed()) {
-                bot.setShooterVelocity(3900);
-            }
-            if (gamepad1.yWasPressed()) {
-                bot.setShooterVelocity(5000);
-            }
-            if (gamepad1.bWasPressed() && Math.abs(bot.getRpm() - Robot.targetVel) < 30) {
-                Robot.runCheckLoop = true;
 
-                Actions.runBlocking(bot.shootFull(telemetry));
-                Actions.runBlocking(bot.sleepWithPIDTeleop(1.5, gamepad1, telemetry));
+            if (gamepad1.xWasPressed()) {
+                if (!shooterOn) {
+                    shooterOn = true;
+                    closeMode = true;
+                } else {
+                    shooterOn = false;
+                }
+            }
+
+            if (gamepad1.yWasPressed()) {
+                if (!shooterOn) {
+                    shooterOn = true;
+                    closeMode = false;
+                } else {
+                    shooterOn = false;
+                }
+            }
+
+            if (shooterOn) {
+                bot.setShooterVelocity(closeMode ? Robot.closeRPM : Robot.farRPM);
+            } else {
                 bot.setShooterVelocity(0);
+            }
+
+            if (gamepad1.bWasPressed() && shooterOn && Math.abs(bot.getRpm() - Robot.targetVel) < 60) {
+                Robot.runCheckLoop = true;
+                bot.turnTransfer();
             }
 
             if (gamepad1.right_trigger > 0) {
@@ -71,7 +89,7 @@ public class TeleopV1 extends LinearOpMode {
             if (gamepad1.left_trigger > 0) {
                 bot.intakePower(-gamepad1.left_trigger);
             }
-            if (gamepad2.y) {
+            if (gamepad1.a) {
                 tag.resumeStreaming();
                 Robot.atagAlign = true;
                 if (!bot.tagProcessor.getDetections().isEmpty() && (bot.tagProcessor.getDetections().get(0).id == 20 || bot.tagProcessor.getDetections().get(0).id
@@ -84,6 +102,7 @@ public class TeleopV1 extends LinearOpMode {
                 tag.stopStreaming();
                 Robot.atagAlign = false;
             }
+
 
             telemetry.addData("Vel", bot.getRpm());
             telemetry.addData("Target", Robot.targetVel);
