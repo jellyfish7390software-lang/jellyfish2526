@@ -24,6 +24,17 @@ public class ShooterTest extends LinearOpMode {
     double vel = 0;
 
     public static double p = 0.002, i = 0, d = 0, f = 0.000265;
+
+    public static double scale = 0;
+
+    //13.4 V, 0.000265
+    //12.47V, 0.0002750
+    //12.31V, 0.00028
+    //12.21, 0.000285
+
+
+    //12.5, 0.000265
+    //12.1, 0.0003
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
     public static double tP = 0.0015, tI = 0, tD = 0;
@@ -90,7 +101,7 @@ public class ShooterTest extends LinearOpMode {
             double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
 
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-            bot.shooter.setPower(shooterPower);
+            bot.shooter.setPower(bot.batteryScale(shooterPower));
 
             bot.intake.setPower(power);
 

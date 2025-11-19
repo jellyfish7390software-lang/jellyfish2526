@@ -42,8 +42,9 @@ public class TeleopV1 extends LinearOpMode {
         boolean shooterOn = false;
         boolean closeMode = true;
 
+        int bCount = 0;
 
-//        tag.stopStreaming();
+        tag.stopStreaming();
 
         while (opModeIsActive()) {
             bot.scoringLoopTele();
@@ -74,10 +75,16 @@ public class TeleopV1 extends LinearOpMode {
                 bot.setShooterVelocity(0);
             }
 
-            if (gamepad1.bWasPressed() && shooterOn && Math.abs(bot.getRpm() - Robot.targetVel) < 60) {
+            if (gamepad1.bWasPressed() && shooterOn ) {
                 Robot.runCheckLoop = true;
-                bot.turnTransfer();
+                Actions.runBlocking(bot.shootFull(telemetry));
             }
+//            if (bCount % 3 == 1) {
+//                bot.intakePower(1);
+//            }
+//            if (bCount % 3 == 2) {
+//                bot.intakePower(0);
+//            }
 
             if (gamepad1.right_trigger > 0) {
                 bot.intakePower(1);
@@ -104,7 +111,7 @@ public class TeleopV1 extends LinearOpMode {
             }
 
 
-            telemetry.addData("Vel", bot.getRpm());
+            telemetry.addData("Vel", Robot.rpm);
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("ShooterPower", bot.shooter.getPower());
             telemetry.addData("runCheckLoop", Robot.runCheckLoop);

@@ -14,6 +14,7 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -56,12 +57,10 @@ public class Robot {
 
     public static double FILTER_CUTOFF = 5;   // Hz (adjustable in dashboard)
     private double filteredTicksPerSec = 0;
-
-    public static double dt;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
     public static double tP = 0.00085, tI = 0, tD = 0;
-    public static double hP = -0.04, hI = 0, hD = 0;
+    public static double hP = 0.04, hI = 0, hD = 0;
 
     public static double leftOffset = -1.5, rightOffset = 1;
     public PIDController hPID = new PIDController(hP, hI, hD);
@@ -73,9 +72,13 @@ public class Robot {
 
     public static double ballDist = 0;
 
-    public static int targetVel = 0;
+    public static double targetVel = 0;
     public static int transferTarget = 0;
     public static double intakePower = 0;
+
+    public static double rpm = 0;
+
+    public double lastTime = 0;
 
     public static boolean runScoringLoop = true;
     public static boolean runCheckLoop = false;
@@ -87,8 +90,8 @@ public class Robot {
     public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
-    public static int closeRPM = 2000;
-    public static int farRPM = 3800;
+    public static int closeRPM = 2900;
+    public static int farRPM = 3400;
 
     public static int ballCount = 0;
     public static boolean ShouldTurn = false;
@@ -112,6 +115,11 @@ public class Robot {
         distance = hardwareMap.get(DistanceSensor.class, "distance");
         voltage = hardwareMap.voltageSensor.iterator().next();
 
+//        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+//
+//        for (LynxModule hub : allHubs) {
+//            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+//        }
 
 //        TODO: (10/31) Add correct config name once mounted
         intakeDistance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "intakeDistance");
@@ -132,13 +140,10 @@ public class Robot {
 
         transferPID = new PIDController(tP, tI, tD);
         shooterPID.setPIDF(p, i, d, f);
-        shooter.setVelocityPIDFCoefficients(p, i, d, f);
 
         timer.reset();
 
         lastTicks = shooter.getCurrentPosition();
-
-        ElapsedTime timer = new ElapsedTime();
 
     }
 
@@ -160,10 +165,11 @@ public class Robot {
     public void incrementTransfer(int increment) {
         transferTarget += increment;
     }
+    public double batteryScale(double num) {
+        return (12.7/voltage.getVoltage()) * num;
+    }
     public void scoringLoopTele() {
         transferPID.setPID(tP, tI, tD);
-
-        thisTicks = -shooter.getCurrentPosition();
 
         if (p != lastP || i != lastI || d != lastD || f != lastF) {
             shooterPID.setPIDF(p, i, d, f);
@@ -173,20 +179,25 @@ public class Robot {
             lastF = f;
         }
 
-        // Raw speed calculation
+        double now = timer.seconds();
+        double dt = now - lastTime;
+        lastTime = now;
+        if (dt <= 0) dt = 0.001;
+
+        thisTicks = -shooter.getCurrentPosition();
+
         double rawTicksPerSec = (thisTicks - lastTicks) / dt;
+        double rawRPM = rawTicksPerSec * (60 / ticksPerRev);
 
-        double rawRPM = rawTicksPerSec *(60/ticksPerRev);
-
-        // Low Pass Filter (RC filter)
         double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
         double alpha = dt / (RC + dt);
-        filteredTicksPerSec = filteredTicksPerSec + alpha * (rawTicksPerSec - filteredTicksPerSec);
-
+        filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
         double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
 
+        rpm = filteredRPM;
+
         double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-        shooter.setPower(shooterPower);
+        shooter.setPower(batteryScale(shooterPower));
 
         double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
         transfer.setPower(transferPower);
@@ -194,11 +205,10 @@ public class Robot {
         intakePower(intakePower);
 
         lastTicks = thisTicks;
-        dt = timer.seconds();
-        timer.reset();
     }
 
     public class ScoringLoop implements Action {
+        public double dt;
         public ScoringLoop() {
             timer.reset();
             dt = timer.seconds();
@@ -206,7 +216,6 @@ public class Robot {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             transferPID.setPID(tP, tI, tD);
-            thisTicks = -shooter.getCurrentPosition();
 
             if (p != lastP || i != lastI || d != lastD || f != lastF) {
                 shooterPID.setPIDF(p, i, d, f);
@@ -216,31 +225,32 @@ public class Robot {
                 lastF = f;
             }
 
-            // Raw speed calculation
+            double now = timer.seconds();
+            double dt = now - lastTime;
+            lastTime = now;
+            if (dt <= 0) dt = 0.001;
+
+            thisTicks = -shooter.getCurrentPosition();
+
             double rawTicksPerSec = (thisTicks - lastTicks) / dt;
+            double rawRPM = rawTicksPerSec * (60 / ticksPerRev);
 
-            double rawRPM = rawTicksPerSec *(60/ticksPerRev);
-
-            // Low Pass Filter (RC filter)
             double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
             double alpha = dt / (RC + dt);
-            filteredTicksPerSec = filteredTicksPerSec + alpha * (rawTicksPerSec - filteredTicksPerSec);
-
+            filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
             double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
 
+            rpm = filteredRPM;
+
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-            shooter.setPower(shooterPower);
+            shooter.setPower(batteryScale(shooterPower));
 
             double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
             transfer.setPower(transferPower);
 
-            Robot.ballDist = distance.getDistance(DistanceUnit.MM);
-
             intakePower(intakePower);
 
             lastTicks = thisTicks;
-            dt = timer.seconds();
-            timer.reset();
 
             return Robot.runScoringLoop;
         }
@@ -347,14 +357,12 @@ public class Robot {
     }
     /// New
     public Action shootFull(Telemetry telemetry) {
-        return new SequentialAction(waitUntilReady(gamepad1, telemetry),
+        return new SequentialAction(
                 turnTransferAction(),
-                sleepWithPIDTeleop(0.5, gamepad1, telemetry),
                 new InstantAction(() -> intakePower(1)),
-                waitForIntake(gamepad1, telemetry),
+                waitForDriver(gamepad1, telemetry),
                 turnTransferAction(),
-                sleepWithPIDTeleop(0.5, gamepad1, telemetry),
-                waitForIntake(gamepad1, telemetry),
+                waitForDriver(gamepad1, telemetry),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
     }
@@ -378,6 +386,14 @@ public class Robot {
         intakePower = power;
 //        intake.setPower(power);
         intake.setPower(power);
+    }
+    public Action waitForDriver(Gamepad gamepad1, Telemetry telemetry) {
+        return new RaceAction(new WaitUntilAction(() -> gamepad1.bWasPressed() && Math.abs(getRpm() - Robot.targetVel) < 50), scoringLoop(), driveAction(gamepad1), new LoopAction(() -> {
+            telemetry.addData("Vel", getRpm());
+            telemetry.addData("Target", Robot.targetVel);
+            telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
+            telemetry.update();
+        }));
     }
 
     public void arcadeDrive(Gamepad gamepad1) {
@@ -411,8 +427,7 @@ public class Robot {
         }
     }
     public double getRpm() {
-        double vel = shooter.getVelocity() / ticksPerRev;
-        return vel * 60;
+        return rpm;
     }
     public void atagAlign(double x, double y) {
         hPID.setPID(hP, hI, hD);

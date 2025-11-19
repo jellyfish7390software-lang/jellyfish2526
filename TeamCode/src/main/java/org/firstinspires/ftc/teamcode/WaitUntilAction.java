@@ -8,7 +8,7 @@ import com.acmerobotics.roadrunner.Action;
 import java.util.function.BooleanSupplier;
 
 public class WaitUntilAction implements Action {
-    public static BooleanSupplier stop;
+    public BooleanSupplier stop;
 
     public WaitUntilAction(BooleanSupplier stopCondition) {
         stop = stopCondition;
