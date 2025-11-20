@@ -45,8 +45,8 @@ public class AprilTagAutoAlign extends LinearOpMode {
             double hPower = 0;
             if (!bot.tagProcessor.getDetections().isEmpty() && (bot.tagProcessor.getDetections().get(0).id == 20 || bot.tagProcessor.getDetections().get(0).id
             == 24)) {
-                hPower = hPID.calculate(bot.tagProcessor.getDetections().get(0).ftcPose.pitch, 0);
-                telemetry.addData("Pitch", bot.tagProcessor.getDetections().get(0).ftcPose.pitch);
+                hPower = hPID.calculate(bot.tagProcessor.getDetections().get(0).ftcPose.bearing, 0);
+                telemetry.addData("Pitch", bot.tagProcessor.getDetections().get(0).ftcPose.bearing);
             }
 
             drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0,0), -hPower));

@@ -52,7 +52,7 @@ public class Robot {
     public Gamepad gamepad1, gamepad2;
     public VoltageSensor voltage;
 
-    public static double p = 0.002, i = 0, d = 0, f = 0.000265;
+    public static double p = 0.002, i = 0, d = 0, f = 0.00024;
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
     public static double FILTER_CUTOFF = 5;   // Hz (adjustable in dashboard)
@@ -166,7 +166,7 @@ public class Robot {
         transferTarget += increment;
     }
     public double batteryScale(double num) {
-        return (12.7/voltage.getVoltage()) * num;
+        return (12.5/voltage.getVoltage()) * num;
     }
     public void scoringLoopTele() {
         transferPID.setPID(tP, tI, tD);
@@ -353,15 +353,17 @@ public class Robot {
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
             telemetry.update();
-            return Math.abs(getRpm() - targetVel) > 30;});
+            return Math.abs(getRpm() - targetVel) > 25;});
     }
     /// New
     public Action shootFull(Telemetry telemetry) {
         return new SequentialAction(
                 turnTransferAction(),
+                sleepWithPIDTeleop(0.75, gamepad1, telemetry),
                 new InstantAction(() -> intakePower(1)),
                 waitForDriver(gamepad1, telemetry),
                 turnTransferAction(),
+                sleepWithPIDTeleop(0.75, gamepad1, telemetry),
                 waitForDriver(gamepad1, telemetry),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
@@ -369,11 +371,11 @@ public class Robot {
     public Action shootFullAuto(Telemetry telemetry) {
         return new SequentialAction(waitForIntake(telemetry),
                 turnTransferAction(),
-                sleepWithPID(0.75),
                 new InstantAction(() -> intakePower(1)),
+                sleepWithPID(0.5),
                 waitForIntake(telemetry),
                 turnTransferAction(),
-                sleepWithPID(0.55),
+                sleepWithPID(0.5),
                 waitForIntake(telemetry),
                 turnTransferAction(),
                 new InstantAction(() -> ballCount = 0));
@@ -388,7 +390,7 @@ public class Robot {
         intake.setPower(power);
     }
     public Action waitForDriver(Gamepad gamepad1, Telemetry telemetry) {
-        return new RaceAction(new WaitUntilAction(() -> gamepad1.bWasPressed() && Math.abs(getRpm() - Robot.targetVel) < 50), scoringLoop(), driveAction(gamepad1), new LoopAction(() -> {
+        return new RaceAction(new WaitUntilAction(() -> gamepad1.bWasPressed() && Math.abs(getRpm() - Robot.targetVel) < 40 || gamepad2.yWasPressed()), scoringLoop(), driveAction(gamepad1), new LoopAction(() -> {
             telemetry.addData("Vel", getRpm());
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);

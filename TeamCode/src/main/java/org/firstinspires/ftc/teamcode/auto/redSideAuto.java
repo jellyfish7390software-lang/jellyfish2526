@@ -37,27 +37,47 @@ public class redSideAuto extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(3600))
+                .afterTime(0.0, a.setShooterVelocity(Robot.closeRPM - 150))
                 .waitSeconds(0.5)
                 .setReversed(false)
-                .strafeToLinearHeading(new Vector2d(-34, 36), Math.toRadians(140))
+                .strafeToLinearHeading(new Vector2d(-32, 32), Math.toRadians(140))
 
-                .afterTime(0.25, bot.shootFullAuto(telemetry))
+                .waitSeconds(0.25)
+                .stopAndAdd(bot.shootFullAuto(telemetry))
+                .waitSeconds(0.25)
 
-                .waitSeconds(3.75)
-                .afterTime(0, a.setShooterVelocity(0))
-                .afterTime(0.01, a.startCheckLoop())
+                .afterTime(0.5, a.setShooterVelocity(0))
+                .afterTime(0.51, a.startCheckLoop())
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d (-9, 22), Math.toRadians(90))
-                .strafeToConstantHeading(new Vector2d(-9, 56))
+                .strafeToLinearHeading(new Vector2d (-11.5, 22), Math.toRadians(90))
+                .waitSeconds(0.25)
+                .strafeToConstantHeading(new Vector2d(-11.5, 60))
+//                .waitSeconds(0.5)
+
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+
+                .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
+                .splineToSplineHeading(new Pose2d(-34, 34, Math.toRadians(140)), Math.toRadians(225))
+                .waitSeconds(0.25)
+                .stopAndAdd(bot.shootFullAuto(telemetry))
+                .waitSeconds(0.25)
+
+                .afterTime(0.5, a.setShooterVelocity(0))
+                .afterTime(0.51, a.startCheckLoop())
+
+                .strafeToLinearHeading(new Vector2d(10, 22), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(10, 68), Math.toRadians(90))
                 .waitSeconds(1)
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
 
-                .afterTime(0, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+                .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-35, 30, Math.toRadians(140)), Math.toRadians(225))
+                .waitSeconds(0.25)
+                .setReversed(false)
+                .stopAndAdd(bot.shootFullAuto(telemetry))
+                .waitSeconds(0.5)
 
-                .afterTime(0.01, a.setShooterVelocity(3675))
-                .strafeToLinearHeading(new Vector2d(-28, 28), Math.toRadians(134))
-                .afterTime(0.25, bot.shootFullAuto(telemetry))
-                .waitSeconds(3.75)
 
 //
 //                .setReversed(true)

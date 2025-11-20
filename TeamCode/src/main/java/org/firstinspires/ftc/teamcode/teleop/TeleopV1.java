@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LoopAction;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp
 public class TeleopV1 extends LinearOpMode {
+    ElapsedTime timer = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
@@ -27,6 +29,9 @@ public class TeleopV1 extends LinearOpMode {
         bot.setShooterVelocity(0);
         bot.intakePower(0);
         bot.setGamepads(gamepad1, gamepad2);
+
+        double thisTime = 0, lastTime = thisTime;
+        double loopTime;
 
         VisionPortal tag = new VisionPortal.Builder()
                 .addProcessor(bot.tagProcessor)
@@ -42,11 +47,12 @@ public class TeleopV1 extends LinearOpMode {
         boolean shooterOn = false;
         boolean closeMode = true;
 
-        int bCount = 0;
+//        tag.stopStreaming();
 
-        tag.stopStreaming();
-
+        timer.reset();
         while (opModeIsActive()) {
+            thisTime = timer.milliseconds();
+            loopTime = thisTime - lastTime;
             bot.scoringLoopTele();
             bot.arcadeDrive(gamepad1);
 
@@ -60,7 +66,7 @@ public class TeleopV1 extends LinearOpMode {
                 }
             }
 
-            if (gamepad1.yWasPressed()) {
+            if (gamepad1.rightStickButtonWasPressed()) {
                 if (!shooterOn) {
                     shooterOn = true;
                     closeMode = false;
@@ -69,14 +75,16 @@ public class TeleopV1 extends LinearOpMode {
                 }
             }
 
+            if (gamepad2.yWasPressed()) bot.turnTransfer();
+
             if (shooterOn) {
                 bot.setShooterVelocity(closeMode ? Robot.closeRPM : Robot.farRPM);
             } else {
                 bot.setShooterVelocity(0);
             }
 
-            if (gamepad1.bWasPressed() && shooterOn ) {
-                Robot.runCheckLoop = true;
+            if (gamepad1.yWasPressed() && shooterOn ) {
+                Robot.runCheckLoop = false;
                 Actions.runBlocking(bot.shootFull(telemetry));
             }
 //            if (bCount % 3 == 1) {
@@ -96,12 +104,12 @@ public class TeleopV1 extends LinearOpMode {
             if (gamepad1.left_trigger > 0) {
                 bot.intakePower(-gamepad1.left_trigger);
             }
-            if (gamepad1.a) {
+            if (gamepad1.left_stick_button) {
                 tag.resumeStreaming();
                 Robot.atagAlign = true;
                 if (!bot.tagProcessor.getDetections().isEmpty() && (bot.tagProcessor.getDetections().get(0).id == 20 || bot.tagProcessor.getDetections().get(0).id
                         == 24)) {
-                    telemetry.addData("Pitch", bot.tagProcessor.getDetections().get(0).ftcPose.pitch);
+                    telemetry.addData("Bearing", bot.tagProcessor.getDetections().get(0).ftcPose.bearing);
                 }
 
             }
@@ -112,6 +120,7 @@ public class TeleopV1 extends LinearOpMode {
 
 
             telemetry.addData("Vel", Robot.rpm);
+            telemetry.addData("LoopTime", loopTime);
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("ShooterPower", bot.shooter.getPower());
             telemetry.addData("runCheckLoop", Robot.runCheckLoop);
@@ -121,6 +130,8 @@ public class TeleopV1 extends LinearOpMode {
             telemetry.addData("BallCount", Robot.ballCount);
             telemetry.addData("ShouldTurn", Robot.ShouldTurn);
             telemetry.update();
+
+            lastTime = thisTime;
         }
 
     }
