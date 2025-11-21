@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import java.util.Vector;
 
 //TODO: Feel free to copy and edit this class as a sample
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleopV1")
 public class redSideAutoClose extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -61,7 +62,7 @@ public class redSideAutoClose extends LinearOpMode {
                 .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.closeRPM - 165)))
 //                .strafeToSplineHeading(new Vector2d(-18.5, 75), Math.toRadians(200))
 
-                .strafeToLinearHeading(new Vector2d(-34, 34), Math.toRadians(135))
+                .strafeToLinearHeading(new Vector2d(-46, 32), Math.toRadians(138))
 
                 .stopAndAdd(bot.shootFullAuto(telemetry))
                 .waitSeconds(0.15)
@@ -96,6 +97,9 @@ public class redSideAutoClose extends LinearOpMode {
                 .strafeToSplineHeading(new Vector2d(-33, 33), Math.toRadians(140), new TranslationalVelConstraint(80), new ProfileAccelConstraint(-50, 70))
 
                 .stopAndAdd(bot.shootFullAuto(telemetry))
+
+                .waitSeconds(0.25)
+                .strafeToLinearHeading(new Vector2d(0, 30), Math.toRadians(90))
 
                 .build();
 

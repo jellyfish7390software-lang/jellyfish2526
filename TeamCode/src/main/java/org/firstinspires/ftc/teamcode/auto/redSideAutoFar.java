@@ -36,7 +36,7 @@ public class redSideAutoFar extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(Robot.farRPM - 2400))
+                .afterTime(0.0, a.setShooterVelocity(Robot.farRPM))
 //              .waitSeconds(0.5)
                 .setReversed(false)
                 .strafeToLinearHeading(new Vector2d(56, 0), Math.toRadians(197))
@@ -44,6 +44,27 @@ public class redSideAutoFar extends LinearOpMode {
 //              .waitSeconds(0.25)
                 .stopAndAdd(bot.shootFullAuto(telemetry))
                 .waitSeconds(0.25)
+
+                .afterTime(0.5, a.setShooterVelocity(0))
+                .afterTime(0.51, a.startCheckLoop())
+
+                .strafeToLinearHeading(new Vector2d(37, 22), Math.toRadians(92))
+                .strafeToLinearHeading(new Vector2d(37, 70), Math.toRadians(92))
+                .waitSeconds(0.5)
+
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.farRPM)))
+
+                .strafeToLinearHeading(new Vector2d(56, 0), Math.toRadians(197))
+
+//              .waitSeconds(0.25)
+                .stopAndAdd(bot.shootFullAuto(telemetry))
+                .waitSeconds(0.25)
+
+                .strafeToLinearHeading(new Vector2d(56, 22), Math.toRadians(92))
+                .strafeToLinearHeading(new Vector2d(56, 70), Math.toRadians(92))
+                .waitSeconds(0.5)
+
+
 
 //                .afterTime(0.5, a.setShooterVelocity(0))
 //                .afterTime(0.51, a.startCheckLoop())
