@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -11,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ActionList;
+import org.firstinspires.ftc.teamcode.LoopAction;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
@@ -32,6 +36,8 @@ public class redSideAuto extends LinearOpMode {
         // Updates MecanumDrive with new startPose
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
 
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         // Makes sure the PIDF loops are running. Just put it at the front of all your shooter
         // opmodes for good practice
         Robot.runScoringLoop = true;
@@ -39,12 +45,12 @@ public class redSideAuto extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(Robot.closeRPM - 150))
+                .afterTime(0.0, a.setShooterVelocity(Robot.closeRPM - 156))
                 .setReversed(false)
                 .strafeToLinearHeading(new Vector2d(-32, 32), Math.toRadians(140))
 
                 .stopAndAdd(bot.shootFullAuto(telemetry))
-                .waitSeconds(0.25)
+                .waitSeconds(0.15)
 
                 //TODO: First Cycle
 
@@ -52,18 +58,14 @@ public class redSideAuto extends LinearOpMode {
                 .afterTime(0.51, a.startCheckLoop())
                 .setReversed(true)
                 .strafeToLinearHeading(new Vector2d (-10.5, 22), Math.toRadians(90))
-                .waitSeconds(0.5)
                 .strafeToConstantHeading(new Vector2d(-10.5, 60))
-//                .waitSeconds(0.5)
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.closeRPM - 165)))
+//                .strafeToSplineHeading(new Vector2d(-18.5, 75), Math.toRadians(200))
 
-                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+                .strafeToLinearHeading(new Vector2d(-34, 34), Math.toRadians(135))
 
-                .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
-                .strafeToLinearHeading(new Vector2d(-34, 34), Math.toRadians(140))
-
-                .waitSeconds(0.25)
                 .stopAndAdd(bot.shootFullAuto(telemetry))
-                .waitSeconds(0.25)
+                .waitSeconds(0.15)
 
                 //TODO: Second Cycle
 
@@ -71,87 +73,41 @@ public class redSideAuto extends LinearOpMode {
                 .afterTime(0.51, a.startCheckLoop())
 
                 .strafeToLinearHeading(new Vector2d(10, 22), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(10, 68), Math.toRadians(90))
-                .waitSeconds(0.25)
-                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+                .strafeToLinearHeading(new Vector2d(10, 70), Math.toRadians(90))
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.closeRPM - 144)))
 
-                .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(10, 48), Math.toRadians(135))
-                .strafeToLinearHeading(new Vector2d(-35, 35), Math.toRadians(135))
-                .waitSeconds(0.25)
-                .setReversed(false)
+                .strafeToLinearHeading(new Vector2d(10, 48), Math.toRadians(135), new TranslationalVelConstraint(80), new ProfileAccelConstraint(-50, 70))
+                .strafeToLinearHeading(new Vector2d(-35, 35), Math.toRadians(140), new TranslationalVelConstraint(80), new ProfileAccelConstraint(-50, 70))
+
                 .stopAndAdd(bot.shootFullAuto(telemetry))
-                .waitSeconds(0.25)
+                .waitSeconds(0.15)
 
                 //TODO: Third Cycle
 
                 .afterTime(0.5, a.setShooterVelocity(0))
                 .afterTime(0.51, a.startCheckLoop())
 
-                .strafeToLinearHeading(new Vector2d(35, 22), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(35, 68), Math.toRadians(90))
-                .waitSeconds(0.25)
-                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+                .strafeToLinearHeading(new Vector2d(37, 22), Math.toRadians(92))
+                .strafeToLinearHeading(new Vector2d(37, 70), Math.toRadians(92))
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.closeRPM - 157)))
 
-                .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(-35, 35), Math.toRadians(135))
-                .waitSeconds(0.25)
-                .setReversed(false)
+                .strafeToLinearHeading(new Vector2d(35, 48), Math.toRadians(90), new TranslationalVelConstraint(80), new ProfileAccelConstraint(-50, 70))
+                .strafeToSplineHeading(new Vector2d(-33, 33), Math.toRadians(140), new TranslationalVelConstraint(80), new ProfileAccelConstraint(-50, 70))
+
                 .stopAndAdd(bot.shootFullAuto(telemetry))
 
-
-//
-//                .setReversed(true)
-//                .strafeToLinearHeading(new Vector2d(-24, 24), Math.toRadians(135))
-//                .waitSeconds(3)
-//                .afterTime(0, () -> bot.shootFull())
-//
-//
-//                .setReversed(true)
-//                .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
-//                .waitSeconds(3)
-//                .afterTime(0, () -> bot.shootFull())
-//
-//                .setReversed(true)
-//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-//                .waitSeconds(3)
-//                .afterTime(0, () -> bot.shootFull())
-//
-//                .setReversed(true)
-//                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
-//                .waitSeconds(3)
-//                .afterTime(0, () -> bot.shootFull())
-//
-//                .setReversed(true)
-//                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-//                //                 Call your Roadrunner movements like this below (as of 10/22/25 roadrunner has not
-////                 been tuned, so avoid using it for now)
-////                .splineToConstantHeading(new Vector2d(20, 30), Math.toRadians(180))
-//
-//                /* This is how you would call a simple time based drivetrain movement, each input of the
-//               function drive.setPowers() is the power of the motor, 1.0 going forwards at max speed.
-//               Return false is very important, make sure it is always there. I know the arrow and stuff
-//               makes no sense, but just go with it for now and I'll explain on Friday.
-//                 */
-//
-//                /* .afterTime has the code inside it run how ever many seconds you inputted after the last
-//                Roadrunner drivetrain movement (NOT the last .afterTime), so the transfer increment would
-//                run 2 seconds after the shooter command, not 3
-//                 */
-//
-//                // Transfer encoder has 8192 ticks for one revolution, so this turns it 1/3 of the way
-
-                .afterTime(30.0, telemetryPacket -> {
-                    Robot.runScoringLoop = false;
-                    return false;
-                })
                 .build();
 
 
         // Runs the drive action you created in parallel with the PIDF loops for the shooter and transfer.
         // Without including the bot.scoringLoop(), the shooter and transfer would not update.
-        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.autoCheckTransfer()));
+        Actions.runBlocking(new ParallelAction(driveAction, bot.scoringLoop(), bot.autoCheckTransfer(), new LoopAction(() -> {
+            telemetry.addData("Vel", bot.getRpm());
+            telemetry.addData("Target", Robot.targetVel);
+            telemetry.addData("inRange", Math.abs(bot.getRpm() - Robot.targetVel) <30);
+            telemetry.update();
+        })));
     }
 }

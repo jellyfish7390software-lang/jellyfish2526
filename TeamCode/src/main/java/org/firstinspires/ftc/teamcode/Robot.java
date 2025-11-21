@@ -36,6 +36,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.zip.InflaterInputStream;
 
 @Config
 public class Robot {
@@ -353,7 +354,7 @@ public class Robot {
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
             telemetry.update();
-            return Math.abs(getRpm() - targetVel) > 25;});
+            return Math.abs(getRpm() - targetVel) > 10;});
     }
     /// New
     public Action shootFull(Telemetry telemetry) {
@@ -369,16 +370,25 @@ public class Robot {
                 new InstantAction(() -> ballCount = 0));
     }
     public Action shootFullAuto(Telemetry telemetry) {
-        return new SequentialAction(waitForIntake(telemetry),
+        return new RaceAction(new SequentialAction(
+                waitForIntake(telemetry),
                 turnTransferAction(),
+                new InstantAction(() -> targetVel += 28),
                 new InstantAction(() -> intakePower(1)),
                 sleepWithPID(0.5),
                 waitForIntake(telemetry),
                 turnTransferAction(),
+                new InstantAction(() -> targetVel -= 28),
                 sleepWithPID(0.5),
                 waitForIntake(telemetry),
                 turnTransferAction(),
-                new InstantAction(() -> ballCount = 0));
+                new InstantAction(() -> ballCount = 0)),
+                new LoopAction(() -> {
+                    telemetry.addData("Vel", getRpm());
+                    telemetry.addData("Target", Robot.targetVel);
+                    telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
+                    telemetry.update();
+                }));
     }
     /// New
     public Action checkTransfer() {
