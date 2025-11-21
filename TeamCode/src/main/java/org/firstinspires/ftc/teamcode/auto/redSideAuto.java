@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.ActionList;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
+import java.util.Vector;
+
 //TODO: Feel free to copy and edit this class as a sample
 @Autonomous
 public class redSideAuto extends LinearOpMode {
@@ -25,7 +27,7 @@ public class redSideAuto extends LinearOpMode {
         ActionList a = new ActionList(bot);
 
         // Put starting pose here
-        Pose2d startPose = new Pose2d(-56,56,Math.toRadians(144));
+        Pose2d startPose = new Pose2d(-56,56, Math.toRadians(144));
 
         // Updates MecanumDrive with new startPose
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
@@ -38,45 +40,66 @@ public class redSideAuto extends LinearOpMode {
 
         Action driveAction = drive.actionBuilder(startPose)
                 .afterTime(0.0, a.setShooterVelocity(Robot.closeRPM - 150))
-                .waitSeconds(0.5)
                 .setReversed(false)
                 .strafeToLinearHeading(new Vector2d(-32, 32), Math.toRadians(140))
 
-                .waitSeconds(0.25)
                 .stopAndAdd(bot.shootFullAuto(telemetry))
                 .waitSeconds(0.25)
+
+                //TODO: First Cycle
 
                 .afterTime(0.5, a.setShooterVelocity(0))
                 .afterTime(0.51, a.startCheckLoop())
                 .setReversed(true)
-                .strafeToLinearHeading(new Vector2d (-11.5, 22), Math.toRadians(90))
-                .waitSeconds(0.25)
-                .strafeToConstantHeading(new Vector2d(-11.5, 60))
+                .strafeToLinearHeading(new Vector2d (-10.5, 22), Math.toRadians(90))
+                .waitSeconds(0.5)
+                .strafeToConstantHeading(new Vector2d(-10.5, 60))
 //                .waitSeconds(0.5)
 
                 .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
 
                 .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
-                .splineToSplineHeading(new Pose2d(-34, 34, Math.toRadians(140)), Math.toRadians(225))
+                .strafeToLinearHeading(new Vector2d(-34, 34), Math.toRadians(140))
+
                 .waitSeconds(0.25)
                 .stopAndAdd(bot.shootFullAuto(telemetry))
                 .waitSeconds(0.25)
+
+                //TODO: Second Cycle
 
                 .afterTime(0.5, a.setShooterVelocity(0))
                 .afterTime(0.51, a.startCheckLoop())
 
                 .strafeToLinearHeading(new Vector2d(10, 22), Math.toRadians(90))
                 .strafeToLinearHeading(new Vector2d(10, 68), Math.toRadians(90))
-                .waitSeconds(1)
+                .waitSeconds(0.25)
                 .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
 
                 .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
                 .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-35, 30, Math.toRadians(140)), Math.toRadians(225))
+                .strafeToLinearHeading(new Vector2d(10, 48), Math.toRadians(135))
+                .strafeToLinearHeading(new Vector2d(-35, 35), Math.toRadians(135))
                 .waitSeconds(0.25)
                 .setReversed(false)
                 .stopAndAdd(bot.shootFullAuto(telemetry))
-                .waitSeconds(0.5)
+                .waitSeconds(0.25)
+
+                //TODO: Third Cycle
+
+                .afterTime(0.5, a.setShooterVelocity(0))
+                .afterTime(0.51, a.startCheckLoop())
+
+                .strafeToLinearHeading(new Vector2d(35, 22), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(35, 68), Math.toRadians(90))
+                .waitSeconds(0.25)
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setIntakePower(0)))
+
+                .afterTime(0.01, a.setShooterVelocity(Robot.closeRPM - 100))
+                .setReversed(true)
+                .strafeToLinearHeading(new Vector2d(-35, 35), Math.toRadians(135))
+                .waitSeconds(0.25)
+                .setReversed(false)
+                .stopAndAdd(bot.shootFullAuto(telemetry))
 
 
 //
