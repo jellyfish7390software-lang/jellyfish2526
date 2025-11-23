@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 //TODO: Feel free to copy and edit this class as a sample
 @Autonomous(preselectTeleOp = "TeleopV1")
-public class redSideAutoFar extends LinearOpMode {
+public class blueSideAutoFar extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
@@ -24,7 +24,7 @@ public class redSideAutoFar extends LinearOpMode {
         ActionList a = new ActionList(bot);
 
         // Put starting pose here
-        Pose2d startPose = new Pose2d(64,18,Math.toRadians(180));
+        Pose2d startPose = new Pose2d(64,-18,Math.toRadians(180));
 
         // Updates MecanumDrive with new startPose
         MecanumDrive drive = new MecanumDrive(hardwareMap, startPose);
@@ -36,10 +36,10 @@ public class redSideAutoFar extends LinearOpMode {
         waitForStart();
 
         Action driveAction = drive.actionBuilder(startPose)
-                .afterTime(0.0, a.setShooterVelocity(Robot.farRPM - 150))
+                .afterTime(0.0, a.setShooterVelocity(Robot.farRPM - 200))
 //              .waitSeconds(0.5)
                 .setReversed(false)
-                .strafeToLinearHeading(new Vector2d(58, 12), Math.toRadians(150))
+                .strafeToLinearHeading(new Vector2d(48, -12), Math.toRadians(207))
 
 //              .waitSeconds(0.25)
                 .stopAndAdd(bot.shootFullAutoFar(telemetry))
@@ -48,28 +48,13 @@ public class redSideAutoFar extends LinearOpMode {
                 .afterTime(0.5, a.setShooterVelocity(0))
                 .afterTime(0.51, a.startCheckLoop())
 
-                .strafeToLinearHeading(new Vector2d(48, 22), Math.toRadians(92))
-                .strafeToLinearHeading(new Vector2d(48, 58), Math.toRadians(92))
-                .waitSeconds(0.5)
-
-                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.farRPM - 175)))
-
-                .strafeToLinearHeading(new Vector2d(58, 12), Math.toRadians(151))
-
-                .stopAndAdd(bot.shootFullAutoFar(telemetry))
-                .waitSeconds(0.25)
-
-                .afterTime(0.5, a.setShooterVelocity(0))
-                .afterTime(0.51, a.startCheckLoop())
-
-                .strafeToLinearHeading(new Vector2d(60, 22), Math.toRadians(81))
-                .splineToLinearHeading(new Pose2d(68, 48, Math.toRadians(30)), Math.toRadians(90))
-                .turnTo(Math.toRadians(45))
+                .strafeToLinearHeading(new Vector2d(23, -22), Math.toRadians(268))
+                .strafeToLinearHeading(new Vector2d(23, -72), Math.toRadians(268))
                 .waitSeconds(0.5)
 
                 .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.farRPM - 150)))
 
-                .strafeToLinearHeading(new Vector2d(58, 12), Math.toRadians(152))
+                .strafeToLinearHeading(new Vector2d(48, -12), Math.toRadians(200))
 
                 .stopAndAdd(bot.shootFullAutoFar(telemetry))
                 .waitSeconds(0.25)
@@ -77,8 +62,23 @@ public class redSideAutoFar extends LinearOpMode {
                 .afterTime(0.5, a.setShooterVelocity(0))
                 .afterTime(0.51, a.startCheckLoop())
 
-                .strafeToLinearHeading(new Vector2d(60, 22), Math.toRadians(81))
-                .splineToLinearHeading(new Pose2d(74, 67, Math.toRadians(0)), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(48, -22), Math.toRadians(279))
+                .splineToLinearHeading(new Pose2d(56, -62, Math.toRadians(270)), Math.toRadians(270))
+                .turnTo(Math.toRadians(315))
+                .waitSeconds(0.5)
+
+                .afterTime(1, new SequentialAction(a.stopCheckLoop(), a.setShooterVelocity(Robot.farRPM - 150)))
+
+                .strafeToLinearHeading(new Vector2d(48, -8), Math.toRadians(200))
+
+                .stopAndAdd(bot.shootFullAutoFar(telemetry))
+                .waitSeconds(0.25)
+
+                .afterTime(0.5, a.setShooterVelocity(0))
+                .afterTime(0.51, a.startCheckLoop())
+
+                .strafeToLinearHeading(new Vector2d(48, -22), Math.toRadians(279))
+                .splineToLinearHeading(new Pose2d(56, -62, Math.toRadians(270)), Math.toRadians(270))
                 .waitSeconds(0.5)
 
                 .afterTime(1, new SequentialAction(a.stopCheckLoop()))
@@ -88,7 +88,7 @@ public class redSideAutoFar extends LinearOpMode {
 //                .stopAndAdd(bot.shootFullAutoFar(telemetry))
 //                .waitSeconds(0.25)
 
-                .strafeToLinearHeading(new Vector2d(48, 36), Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(28, -36), Math.toRadians(180))
 
                 .build();
 

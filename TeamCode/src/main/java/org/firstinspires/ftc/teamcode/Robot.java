@@ -92,7 +92,7 @@ public class Robot {
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
     public static int closeRPM = 2900;
-    public static int farRPM = 3400;
+    public static int farRPM = 3750;
 
     public static int ballCount = 0;
     public static boolean ShouldTurn = false;
@@ -361,6 +361,7 @@ public class Robot {
         return new SequentialAction(
                 turnTransferAction(),
                 sleepWithPIDTeleop(0.75, gamepad1, telemetry),
+                new InstantAction(() -> targetVel -= 20),
                 new InstantAction(() -> intakePower(1)),
                 waitForDriver(gamepad1, telemetry),
                 turnTransferAction(),
@@ -378,7 +379,28 @@ public class Robot {
                 sleepWithPID(0.5),
                 waitForIntake(telemetry),
                 turnTransferAction(),
-                new InstantAction(() -> targetVel -= 28),
+                new InstantAction(() -> targetVel -= 48),
+                sleepWithPID(0.5),
+                waitForIntake(telemetry),
+                turnTransferAction(),
+                new InstantAction(() -> ballCount = 0)),
+                new LoopAction(() -> {
+                    telemetry.addData("Vel", getRpm());
+                    telemetry.addData("Target", Robot.targetVel);
+                    telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
+                    telemetry.update();
+                }));
+    }
+    public Action shootFullAutoFar(Telemetry telemetry) {
+        return new RaceAction(new SequentialAction(
+//                new InstantAction(() -> targetVel += 50),
+                waitForIntake(telemetry),
+                turnTransferAction(),
+                new InstantAction(() -> intakePower(1)),
+                sleepWithPID(0.5),
+//                new InstantAction(() -> targetVel -= 50),
+                waitForIntake(telemetry),
+                turnTransferAction(),
                 sleepWithPID(0.5),
                 waitForIntake(telemetry),
                 turnTransferAction(),

@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -78,12 +79,12 @@ public class TeleopV1 extends LinearOpMode {
             if (gamepad2.yWasPressed()) bot.turnTransfer();
 
             if (shooterOn) {
-                bot.setShooterVelocity(closeMode ? Robot.closeRPM : Robot.farRPM);
+                bot.setShooterVelocity(closeMode ? Robot.closeRPM + 20 : Robot.farRPM);
             } else {
                 bot.setShooterVelocity(0);
             }
 
-            if (gamepad1.yWasPressed() && shooterOn ) {
+            if (gamepad1.yWasPressed() && shooterOn && (Math.abs(bot.getRpm() - Robot.targetVel) < 30)) {
                 Robot.runCheckLoop = false;
                 Actions.runBlocking(bot.shootFull(telemetry));
             }
@@ -98,13 +99,28 @@ public class TeleopV1 extends LinearOpMode {
                 bot.intakePower(1);
                 bot.checkTransferTele();
             }
+
+            if (gamepad2.dpadUpWasPressed()) {
+                bot.incrementTransfer(250);
+                Actions.runBlocking(bot.sleepWithPIDTeleop(0.5, gamepad1, telemetry));
+                Robot.transferTarget = 0;
+                bot.transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                bot.transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            if (gamepad2.dpadDownWasPressed()) {
+                bot.incrementTransfer(-250);
+                Actions.runBlocking(bot.sleepWithPIDTeleop(0.5, gamepad1, telemetry));
+                Robot.transferTarget = 0;
+                bot.transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                bot.transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
             else {
                 bot.intakePower(0);
             }
             if (gamepad1.left_trigger > 0) {
                 bot.intakePower(-gamepad1.left_trigger);
             }
-            if (gamepad1.left_stick_button) {
+            if (gamepad1.a) {
                 tag.resumeStreaming();
                 Robot.atagAlign = true;
                 if (!bot.tagProcessor.getDetections().isEmpty() && (bot.tagProcessor.getDetections().get(0).id == 20 || bot.tagProcessor.getDetections().get(0).id
