@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -14,7 +15,7 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerImpl;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -29,14 +30,21 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.actions.LoopAction;
+import org.firstinspires.ftc.teamcode.actions.PurePursuitAction;
+import org.firstinspires.ftc.teamcode.actions.WaitUntilAction;
+import org.firstinspires.ftc.teamcode.comp1.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.purepursuit.math.Bezier;
+import org.firstinspires.ftc.teamcode.purepursuit.math.BezierPath;
+import org.firstinspires.ftc.teamcode.purepursuit.math.Path;
+import org.firstinspires.ftc.teamcode.purepursuit.math.Pose;
+import org.firstinspires.ftc.teamcode.purepursuit.math.PurePursuit;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
-import java.util.zip.InflaterInputStream;
 
 @Config
 public class Robot {
@@ -49,6 +57,10 @@ public class Robot {
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
     public DistanceSensor distance, intakeDistance;
+
+    public PurePursuit purePursuit;
+
+    public Telemetry telemetry;
 
     public Gamepad gamepad1, gamepad2;
     public VoltageSensor voltage;
@@ -109,6 +121,8 @@ public class Robot {
         ballCount = 0;
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
+        purePursuit = new PurePursuit(drive);
+
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 
@@ -148,6 +162,14 @@ public class Robot {
 
     }
 
+
+    public void setPose(Pose pose) {
+        drive.localizer.setPose(pose.toPose2d());
+        purePursuit.mecDrive = drive;
+    }
+    public Action followPath(Path path) {
+        return new PurePursuitAction(purePursuit, path);
+    }
 //    public void purplePath() {
 //        diverter.setPosition(0.8);
 //    }
