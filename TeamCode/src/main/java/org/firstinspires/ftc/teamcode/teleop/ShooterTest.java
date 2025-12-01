@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 
 @Config
 @TeleOp
-@Disabled
+
 public class ShooterTest extends LinearOpMode {
 
     public static double targetVel = 0;
