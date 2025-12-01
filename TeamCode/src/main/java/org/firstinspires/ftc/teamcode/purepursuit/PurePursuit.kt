@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.MecanumDrive
 import org.firstinspires.ftc.teamcode.offseason.math.ParameterizedCircle
+import org.firstinspires.ftc.teamcode.purepursuit.MecanumDrivePurePursuit
 import org.firstinspires.ftc.teamcode.purepursuit.pid.SquIDController
 import java.lang.annotation.Inherited
 import java.util.Collections
@@ -21,7 +22,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class PurePursuit(drive: MecanumDrive) {
+class PurePursuit(drive: MecanumDrivePurePursuit) {
     fun Pose2d.toPose(): Pose {
         return Pose(this.position.x, this.position.y, this.heading.toDouble())
     }

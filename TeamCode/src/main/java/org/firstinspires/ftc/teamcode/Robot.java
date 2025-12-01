@@ -36,6 +36,7 @@ import org.firstinspires.ftc.teamcode.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.actions.PurePursuitAction;
 import org.firstinspires.ftc.teamcode.actions.WaitUntilAction;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.purepursuit.MecanumDrivePurePursuit;
 import org.firstinspires.ftc.teamcode.purepursuit.math.Bezier;
 import org.firstinspires.ftc.teamcode.purepursuit.math.BezierPath;
 import org.firstinspires.ftc.teamcode.purepursuit.math.Path;
@@ -49,7 +50,7 @@ import java.util.List;
 @Config
 public class Robot {
 
-    public MecanumDrive drive;
+    public MecanumDrivePurePursuit drive;
     public DcMotorEx leftIntake, rightIntake, intake, shooter;
     public DcMotorEx transfer;
     public Servo diverter;
@@ -119,7 +120,7 @@ public class Robot {
         intakePower = 0;
         ballDist = 0;
         ballCount = 0;
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
 
         purePursuit = new PurePursuit(drive);
 

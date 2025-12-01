@@ -11,14 +11,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.Drawing;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.TankDrive;
+import org.firstinspires.ftc.teamcode.purepursuit.MecanumDrivePurePursuit;
 
 public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
-            MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrivePurePursuit.class)) {
+            MecanumDrivePurePursuit drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
 
             waitForStart();
 

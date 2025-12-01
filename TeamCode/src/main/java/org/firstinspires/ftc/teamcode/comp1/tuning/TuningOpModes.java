@@ -42,6 +42,8 @@ import org.firstinspires.ftc.teamcode.comp1.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.TwoDeadWheelLocalizer;
+import org.firstinspires.ftc.teamcode.purepursuit.MecanumDrivePurePursuit;
+import org.firstinspires.ftc.teamcode.purepursuit.TwoDeadWheelLocalizerPurePursuit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +51,7 @@ import java.util.List;
 
 public final class TuningOpModes {
     // TODO: change this to TankDrive.class if you're using tank
-    public static final Class<?> DRIVE_CLASS = MecanumDrive.class;
+    public static final Class<?> DRIVE_CLASS = MecanumDrivePurePursuit.class;
 
     public static final String GROUP = "quickstart";
     public static final boolean DISABLED = false;
@@ -124,9 +126,9 @@ public final class TuningOpModes {
         if (DISABLED) return;
 
         DriveViewFactory dvf;
-        if (DRIVE_CLASS.equals(MecanumDrive.class)) {
+        if (DRIVE_CLASS.equals(MecanumDrivePurePursuit.class)) {
             dvf = hardwareMap -> {
-                MecanumDrive md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+                MecanumDrivePurePursuit md = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
                 LazyImu lazyImu = md.lazyImu;
 
                 List<EncoderGroup> encoderGroups = new ArrayList<>();
@@ -151,8 +153,8 @@ public final class TuningOpModes {
                     parEncs.add(new EncoderRef(0, 0));
                     parEncs.add(new EncoderRef(0, 1));
                     perpEncs.add(new EncoderRef(0, 2));
-                } else if (md.localizer instanceof TwoDeadWheelLocalizer) {
-                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
+                } else if (md.localizer instanceof TwoDeadWheelLocalizerPurePursuit) {
+                    TwoDeadWheelLocalizerPurePursuit dl = (TwoDeadWheelLocalizerPurePursuit) md.localizer;
                     encoderGroups.add(new LynxQuadratureEncoderGroup(
                             hardwareMap.getAll(LynxModule.class),
                             Arrays.asList(dl.par, dl.perp)
@@ -234,8 +236,8 @@ public final class TuningOpModes {
                     parEncs.add(new EncoderRef(0, 0));
                     parEncs.add(new EncoderRef(0, 1));
                     perpEncs.add(new EncoderRef(0, 2));
-                } else if (td.localizer instanceof TwoDeadWheelLocalizer) {
-                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) td.localizer;
+                } else if (td.localizer instanceof TwoDeadWheelLocalizerPurePursuit) {
+                    TwoDeadWheelLocalizerPurePursuit dl = (TwoDeadWheelLocalizerPurePursuit) td.localizer;
                     encoderGroups.add(new LynxQuadratureEncoderGroup(
                             hardwareMap.getAll(LynxModule.class),
                             Arrays.asList(dl.par, dl.perp)
