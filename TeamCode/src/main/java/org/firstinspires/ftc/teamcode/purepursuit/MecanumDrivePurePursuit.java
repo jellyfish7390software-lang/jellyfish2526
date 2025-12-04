@@ -76,12 +76,12 @@ public final class MecanumDrivePurePursuit {
 
         // drive model parameters
         public double inPerTick = 0.0019813424;
-        public double lateralInPerTick = 0.0014977742928209083;
-        public double trackWidthTicks = 6627.133020581994;
+        public double lateralInPerTick = 0.0012448083828976227;
+        public double trackWidthTicks = 7254.575998588148;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.1335369239081552;
-        public double kV = 0.000273754803797265;
+        public double kS = 1.1473273093778955;
+        public double kV = 0.0002471530114834426;
         public double kA = 0.000076;
 
         // path profile parameters (in inches)
@@ -249,9 +249,9 @@ public final class MecanumDrivePurePursuit {
 
         // TODO: reverse motor directions if needed
 
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
 

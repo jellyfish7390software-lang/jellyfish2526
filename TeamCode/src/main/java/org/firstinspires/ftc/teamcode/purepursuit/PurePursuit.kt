@@ -56,8 +56,10 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     fun updateSearchRadius(radius: Double) {
         searchRad = radius
-        pose = localizer.pose.toPose()
         localizer = mecDrive.localizer!!
+        mecDrive.updatePoseEstimate()
+        localizer.update()
+        pose = localizer.pose.toPose()
         searchRadius = ParameterizedCircle(pose.vec(), radius)
     }
 
@@ -66,12 +68,12 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         val hTolerance = 5.0.toRadians()
     }
 
-    @JvmField var kSQx = 0.5
-    @JvmField var kSQy = 0.75
+    @JvmField var kSQx = 0.05
+    @JvmField var kSQy = 0.10
 
     var xSquid: SquIDController = SquIDController(kSQx)
     var ySquid: SquIDController = SquIDController(kSQy)
-    @JvmField var hPID: PIDCoefficients = PIDCoefficients(1.0,0.08,0.05)
+    @JvmField var hPID: PIDCoefficients = PIDCoefficients(0.6, 0.0,0.05)
 
     var hController = PIDController(hPID.p, hPID.i, hPID.d)
 
