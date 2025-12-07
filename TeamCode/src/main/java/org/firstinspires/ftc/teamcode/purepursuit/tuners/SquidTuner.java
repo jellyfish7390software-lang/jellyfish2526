@@ -13,12 +13,13 @@ import org.firstinspires.ftc.teamcode.purepursuit.math.Pose;
 @Config
 @TeleOp
 public class SquidTuner extends LinearOpMode {
-    public static double kSQx = 0.05;
-    public static double kSQy = 0.10;
+    public static double kSQx = 0.055;
+    public static double kSQy = 0.15;
 
     public static double hP = 0.6, hI = 0, hD = 0.05;
 
     public static double targetX = 0, targetY = 0, targetH = 0;
+    public static boolean random = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -33,6 +34,13 @@ public class SquidTuner extends LinearOpMode {
             bot.purePursuit.kSQy = kSQy;
             bot.purePursuit.hPID = new PIDCoefficients(hP, hI, hD);
             bot.purePursuit.singlePIDtoPoint(new Pose(targetX, targetY, targetH));
+
+            if (random) {
+                random = false;
+                targetX = 48*Math.random() - 24;
+                targetY = 48*Math.random() - 24;
+                targetH = 2*Math.PI* Math.random();
+            }
 
             telemetry.addData("TargetX", targetX);
             telemetry.addData("TargetY", targetY);
