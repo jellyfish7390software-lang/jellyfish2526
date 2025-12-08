@@ -125,7 +125,7 @@ public class Robot {
         purePursuit = new PurePursuit(drive);
 
 //        intake = hardwareMap.get(DcMotorEx.class, "intake");
-//        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 //
 //        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 //        distance = hardwareMap.get(DistanceSensor.class, "distance");
@@ -281,6 +281,10 @@ public class Robot {
     }
     public void turnTransfer() {
         transferTarget += 8192/3;
+    }
+    public double regressF(double targetVel) {
+        if (targetVel != 0) return 0.0904624/(targetVel) + 0.000182271;
+        else return 0;
     }
     public Action turnTransferAction() {
         return new InstantAction(() -> transferTarget += 8192/3);
