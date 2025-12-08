@@ -34,7 +34,7 @@ public class Camera extends LinearOpMode {
                 telemetry.addData("bearing", myAprilTagProcessor.getDetections().get(0).ftcPose.bearing);
                 if (myAprilTagProcessor.getDetections().get(0).ftcPose.bearing < 0)
                     telemetry.addLine("turn right");
-                
+
                 if (myAprilTagProcessor.getDetections().get(0).ftcPose.bearing > 0) {
                     telemetry.addLine("turn left");
 
