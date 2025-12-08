@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.purepursuit.math
 
+import android.graphics.Color
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.Robot
+import org.firstinspires.ftc.teamcode.comp1.roadrunner.Drawing
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.MecanumDrive
 import org.firstinspires.ftc.teamcode.offseason.math.ParameterizedCircle
 import org.firstinspires.ftc.teamcode.purepursuit.MecanumDrivePurePursuit
@@ -46,6 +48,8 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     @JvmField var lastT = 0.0
 
+    @JvmField var telemetryPacket = TelemetryPacket()
+
 
     private var epsilon = 6e-5
     private var stepSize = 1e-5
@@ -55,10 +59,16 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
     @JvmField var hasReachedDestination = false
 
     fun updateSearchRadius(radius: Double) {
+        telemetryPacket = TelemetryPacket()
         searchRad = radius
         localizer = mecDrive.localizer!!
         mecDrive.updatePoseEstimate()
         localizer.update()
+        telemetryPacket.fieldOverlay().setStroke("#faaccd")
+        Drawing.drawRobot(telemetryPacket.fieldOverlay(), pose.toPose2d())
+        telemetryPacket.fieldOverlay().setStroke("#159470")
+        Drawing.drawRobot(telemetryPacket.fieldOverlay(), targetPose.toPose2d())
+        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket)
         pose = localizer.pose.toPose()
         searchRadius = ParameterizedCircle(pose.vec(), radius)
     }
