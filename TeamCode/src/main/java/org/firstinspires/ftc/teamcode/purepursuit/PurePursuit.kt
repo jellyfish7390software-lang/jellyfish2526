@@ -50,6 +50,10 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     @JvmField var telemetryPacket = TelemetryPacket()
 
+    @JvmField var maxPower = 0.85
+
+    @JvmField var atEnd = false
+
 
     private var epsilon = 6e-5
     private var stepSize = 1e-5
@@ -59,23 +63,24 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
     @JvmField var hasReachedDestination = false
 
     fun updateSearchRadius(radius: Double) {
-        telemetryPacket = TelemetryPacket()
         searchRad = radius
         localizer = mecDrive.localizer!!
         mecDrive.updatePoseEstimate()
         localizer.update()
-        telemetryPacket.fieldOverlay().setStroke("#faaccd")
-        Drawing.drawRobot(telemetryPacket.fieldOverlay(), pose.toPose2d())
-        telemetryPacket.fieldOverlay().setStroke("#159470")
-        Drawing.drawRobot(telemetryPacket.fieldOverlay(), targetPose.toPose2d())
-        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket)
         pose = localizer.pose.toPose()
         searchRadius = ParameterizedCircle(pose.vec(), radius)
     }
+    fun updatePaths() {
+        telemetryPacket.fieldOverlay().setStroke("#faaccd")
+        Drawing.drawRobot(telemetryPacket.fieldOverlay(), pose.toPose2d(), this)
+        telemetryPacket.fieldOverlay().setStroke("#159470")
+        Drawing.drawRobot(telemetryPacket.fieldOverlay(), targetPose.toPose2d(), this)
+        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket)
+    }
 
     object Defaults {
-        val posTolerance = 1.0
-        val hTolerance = 5.0.toRadians()
+        val posTolerance = 0.85
+        val hTolerance = 3.0.toRadians()
     }
 
     @JvmField var kSQx = 0.05
@@ -136,7 +141,8 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         this.rotY = rotY
         this.powH = h
 
-        mecDrive.setDrivePowers(PoseVelocity2d(Vector2d(rotX, rotY), h))
+        if (!atEnd) mecDrive.setDrivePowers(Maths.scaleUp(PoseVelocity2d(Vector2d(rotX, rotY), h), maxPower))
+        else mecDrive.setDrivePowers(PoseVelocity2d(Vector2d(rotX, rotY), powH))
         updatePose()
     }
 
@@ -248,7 +254,7 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         val adjustedPose = ParametricPose(
             targetPose.x,
             targetPose.y,
-            targetPose.h + Math.PI,
+            targetPose.h,
             targetPose.t
         )
 
@@ -289,28 +295,34 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     fun followPathSingle(path: Bezier, packet: TelemetryPacket) {
         var targetPose = calculateTargetPose(path)
+        path.draw(packet.fieldOverlay())
+        telemetryPacket = packet
 
-        packet.put("TargetX", targetPose.x)
-        packet.put("TargetY", targetPose.y)
-        packet.put("TargetH", targetPose.h)
-        packet.put("TargetT", targetPose.t)
+        if (Maths.dist(pose, path.end().toPose()) < 12.0) atEnd = true
+
+        telemetryPacket.put("TargetX", targetPose.x)
+        telemetryPacket.put("TargetY", targetPose.y)
+        telemetryPacket.put("TargetH", targetPose.h)
+        telemetryPacket.put("TargetT", targetPose.t)
 
         targetPose = calculateTargetPose(path)
 
         this.targetPose = targetPose.toPose()
 
-        updateSearchRadius(searchRad)
+        telemetryPacket.put("CurrentX", pose.x)
+        telemetryPacket.put("CurrentY", pose.y)
+        telemetryPacket.put("CurrentH", pose.h)
+
+        telemetryPacket.put("RotX", rotX)
+        telemetryPacket.put("RotY", rotY)
+        telemetryPacket.put("H", powH)
+
+        telemetryPacket.put("DistanceToTarget", Maths.dist(pose, targetPose.toPose()))
+        telemetryPacket.put("SearchRadius", searchRad)
 
         singlePIDtoPoint(targetPose.toPose())
+        updatePaths()
 
-        packet.put("CurrentX", pose.x)
-        packet.put("CurrentY", pose.y)
-        packet.put("CurrentH", pose.h)
-
-        packet.put("DistanceToTarget", Maths.dist(pose, targetPose.toPose()))
-        packet.put("SearchRadius", searchRad)
-
-        FtcDashboard.getInstance().sendTelemetryPacket(packet)
     }
     fun followPathSingle(path: BezierPath, packet: TelemetryPacket) {
         if (!path.isFollowable()) return

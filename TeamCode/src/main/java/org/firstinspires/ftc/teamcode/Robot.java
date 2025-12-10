@@ -145,10 +145,10 @@ public class Robot {
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 //
 //        intake.setDirection(DcMotorSimple.Direction.REVERSE);
-//        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 //
 //        transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

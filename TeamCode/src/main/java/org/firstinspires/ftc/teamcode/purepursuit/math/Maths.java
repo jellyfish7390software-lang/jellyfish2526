@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.purepursuit.math;
 
 
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.ArrayList;
@@ -35,6 +38,28 @@ public class Maths {
     public static double dist(Pose end, Pose start) {
         return Math.hypot(end.x - start.x, end.y - start.y);
     }
+    public static PoseVelocity2d scaleUp(PoseVelocity2d powers, double maxPower) {
+        double x = powers.linearVel.x;
+        double y = powers.linearVel.y;
+        double h = powers.angVel;
+
+        // largest magnitude component (x, y, or angVel)
+        double maxComponent = Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(h));
+
+        // if all components are zero, nothing to scale
+        if (maxComponent == 0) {
+            return powers;
+        }
+
+        // scale so that maxComponent becomes exactly maxPower
+        double scale = maxPower / maxComponent;
+
+        return new PoseVelocity2d(
+                new Vector2d(x * scale, y * scale),
+                h * scale
+        );
+    }
+
     public static double clamp(double input, double leftBound, double rightBound) {
         if (leftBound < rightBound) {
             if (input < leftBound) input = leftBound;

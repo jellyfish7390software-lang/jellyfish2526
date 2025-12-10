@@ -29,14 +29,6 @@ public class ShooterTest extends LinearOpMode {
 
     public static double scale = 0;
 
-    //13.4 V, 0.000265
-    //12.47V, 0.0002750
-    //12.31V, 0.00028
-    //12.21, 0.000285
-
-
-    //12.5, 0.000265
-    //12.1, 0.0003
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
     public static double tP = 0.0015, tI = 0, tD = 0;
@@ -52,7 +44,7 @@ public class ShooterTest extends LinearOpMode {
     public double thisTicks = 0, lastTicks = 0;
 
     // LPF settings
-    public static double FILTER_CUTOFF = 5;   // Hz (adjustable in dashboard)
+    public static double FILTER_CUTOFF = 3;   // Hz (adjustable in dashboard)
     private double filteredTicksPerSec = 0;
 
     @Override
@@ -107,11 +99,11 @@ public class ShooterTest extends LinearOpMode {
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
             bot.shooter.setPower(shooterPower);
 
-            bot.intake.setPower(power);
+//            bot.intake.setPower(power);
 
-            transferPID.setPID(tP, tI, tD);
-            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), (8192/3)*transferPos);
-            bot.transfer.setPower(transferPower);
+//            transferPID.setPID(tP, tI, tD);
+//            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), (8192/3)*transferPos);
+//            bot.transfer.setPower(transferPower);
 
             telemetry.addData("Filtered RPM", filteredRPM);
             telemetry.addData("Velocity: RPM", vel);
@@ -121,8 +113,8 @@ public class ShooterTest extends LinearOpMode {
             telemetry.addData("Raw Ticks/Sec", rawTicksPerSec);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
             telemetry.addData("Shooter Power", bot.shooter.getPower());
-            telemetry.addData("Transfer Target", transferPos);
-            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
+//            telemetry.addData("Transfer Target", transferPos);
+//            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
             telemetry.update();
             lastTicks = thisTicks;
             dt = timer.seconds();

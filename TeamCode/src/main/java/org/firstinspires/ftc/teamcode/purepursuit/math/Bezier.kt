@@ -448,7 +448,7 @@ data class Bezier(val controlPoints: MutableList<Vector>): ParameterizedObject, 
         val incAmount = 20
         val xPoints = mutableListOf<Double>()
         val yPoints = mutableListOf<Double>()
-        c.setStroke("#fa98ce")
+        c.setStroke("#faaccd")
 
         for (i in 0..incAmount) {
             val t = i.toDouble() / incAmount

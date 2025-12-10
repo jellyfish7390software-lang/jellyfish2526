@@ -18,6 +18,7 @@ public class PurePursuitAction implements Action {
         this.path = path;
         purePursuit.lastT = 0.0;
         purePursuit.hasReachedDestination = false;
+        purePursuit.atEnd = false;
     }
 
     @Override
