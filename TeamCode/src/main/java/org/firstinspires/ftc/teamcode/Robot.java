@@ -120,14 +120,14 @@ public class Robot {
         intakePower = 0;
         ballDist = 0;
         ballCount = 0;
-        drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
+//        drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
 
-        purePursuit = new PurePursuit(drive);
+//        purePursuit = new PurePursuit(drive);
 
-//        intake = hardwareMap.get(DcMotorEx.class, "intake");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 //
-//        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
+        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
 //        distance = hardwareMap.get(DistanceSensor.class, "distance");
         voltage = hardwareMap.voltageSensor.iterator().next();
 
@@ -149,6 +149,7 @@ public class Robot {
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 //
 //        transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -283,7 +284,7 @@ public class Robot {
         transferTarget += 8192/3;
     }
     public double regressF(double targetVel) {
-        if (targetVel != 0) return 0.0904624/(targetVel) + 0.000182271;
+        if (targetVel != 0) return (0.0530089/(targetVel)) + 0.000192333;
         else return 0;
     }
     public Action turnTransferAction() {
