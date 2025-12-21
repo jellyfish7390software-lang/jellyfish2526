@@ -23,6 +23,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 public class AprilTagAutoAlign extends LinearOpMode {
     public static double hP = 0.05, hI = 0, hD = 0;
     public PIDController hPID;
+    
 
     @Override
     public void runOpMode() throws InterruptedException {
