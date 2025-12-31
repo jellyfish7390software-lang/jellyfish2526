@@ -40,7 +40,7 @@ public class ShooterTest extends LinearOpMode {
     public static int transferPos = 0;
     public PIDController transferPID;
     public PIDFController shooterPID = new PIDFController(p, i, d, f);
-    public PIDController turretPID;
+    public PIDController turretPID = new PIDController(turretP, turretI, turretD);
 
     public static double power = 0.0;
     public static double shooterPower = 0.0;
@@ -103,15 +103,19 @@ public class ShooterTest extends LinearOpMode {
             double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
 
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
+            if (targetVel == 0) {
+                shooterPower*= 0.7;
+            }
             bot.shooter.setPower(shooterPower);
 
             bot.intake.setPower(power);
 
 //            transferPID.setPID(tP, tI, tD);
 //            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), (8192/3)*transferPos);
-            bot.transfer.setPower(transferPower);
-            turretPID.setPID(turretP, turretI, turretD);
-            turretPower = turretPID.calculate(bot.turret.getCurrentPosition(), turretTarget);
+            bot.transfer.setPower(power);
+//            turretPID.setPID(turretP, turretI, turretD);
+//            turretPower = turretPID.calculate(bot.turret.getCurrentPosition(), turretTarget);
+            bot.turret.setPower(turretPower);
 
 
             telemetry.addData("Filtered RPM", filteredRPM);

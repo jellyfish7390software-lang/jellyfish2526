@@ -130,7 +130,7 @@ public class Robot {
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
         turret = hardwareMap.get(DcMotorEx.class, "turret");
 
-//        distance = hardwareMap.get(DistanceSensor.class, "distance");
+        distance = hardwareMap.get(DistanceSensor.class, "distance");
         voltage = hardwareMap.voltageSensor.iterator().next();
 
 //        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
