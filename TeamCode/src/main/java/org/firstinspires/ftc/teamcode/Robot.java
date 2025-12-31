@@ -51,7 +51,7 @@ import java.util.List;
 public class Robot {
 
     public MecanumDrivePurePursuit drive;
-    public DcMotorEx leftIntake, rightIntake, intake, shooter;
+    public DcMotorEx leftIntake, rightIntake, intake, shooter, turret;
     public DcMotorEx transfer;
     public Servo diverter;
     public WebcamName ballCam, tagCam;
@@ -120,14 +120,16 @@ public class Robot {
         intakePower = 0;
         ballDist = 0;
         ballCount = 0;
-//        drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
 
-//        purePursuit = new PurePursuit(drive);
+        purePursuit = new PurePursuit(drive);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 //
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
+        turret = hardwareMap.get(DcMotorEx.class, "turret");
+
 //        distance = hardwareMap.get(DistanceSensor.class, "distance");
         voltage = hardwareMap.voltageSensor.iterator().next();
 

@@ -21,6 +21,8 @@ public class ShooterTest extends LinearOpMode {
 
     public static double targetVel = 0;
 
+    public static double turretTarget = 0;
+
     public static double ticksPerRev = 8192.0;
 
     double vel = 0;
@@ -33,13 +35,17 @@ public class ShooterTest extends LinearOpMode {
 
     public static double tP = 0.0015, tI = 0, tD = 0;
 
+    public static double turretP = 0, turretI = 0, turretD = 0;
+
     public static int transferPos = 0;
     public PIDController transferPID;
     public PIDFController shooterPID = new PIDFController(p, i, d, f);
+    public PIDController turretPID;
 
     public static double power = 0.0;
     public static double shooterPower = 0.0;
     public static double transferPower = 0.0;
+    public static double turretPower = 0.0;
 
     public double thisTicks = 0, lastTicks = 0;
 
@@ -104,6 +110,9 @@ public class ShooterTest extends LinearOpMode {
 //            transferPID.setPID(tP, tI, tD);
 //            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), (8192/3)*transferPos);
             bot.transfer.setPower(transferPower);
+            turretPID.setPID(turretP, turretI, turretD);
+            turretPower = turretPID.calculate(bot.turret.getCurrentPosition(), turretTarget);
+
 
             telemetry.addData("Filtered RPM", filteredRPM);
             telemetry.addData("Velocity: RPM", vel);
@@ -113,6 +122,9 @@ public class ShooterTest extends LinearOpMode {
             telemetry.addData("Raw Ticks/Sec", rawTicksPerSec);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());
             telemetry.addData("Shooter Power", bot.shooter.getPower());
+            telemetry.addData("TurretPos", bot.turret.getCurrentPosition());
+            telemetry.addData("Turret Target", turretTarget);
+            telemetry.addData("TurretPower", turretPower);
 //            telemetry.addData("Transfer Target", transferPos);
 //            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
             telemetry.update();
