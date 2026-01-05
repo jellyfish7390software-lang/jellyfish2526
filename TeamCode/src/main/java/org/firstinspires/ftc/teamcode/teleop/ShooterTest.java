@@ -16,26 +16,21 @@ import org.firstinspires.ftc.teamcode.Robot;
 
 @Config
 @TeleOp
-
 public class ShooterTest extends LinearOpMode {
 
     public static double targetVel = 0;
-
     public static double turretTarget = 0;
-
     public static double ticksPerRev = 8192.0;
+    public static double hoodPos = 0;
 
     double vel = 0;
 
     public static double p = 0.02, i = 0, d = 0, f = 0.000205;
-
     public static double scale = 0;
-
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
     public static double tP = 0.0015, tI = 0, tD = 0;
-
-    public static double turretP = 0, turretI = 0, turretD = 0;
+    public static double turretP = 0.01, turretI = 0, turretD = 0;
 
     public static int transferPos = 0;
     public PIDController transferPID;
@@ -52,6 +47,10 @@ public class ShooterTest extends LinearOpMode {
     // LPF settings
     public static double FILTER_CUTOFF = 3;   // Hz (adjustable in dashboard)
     private double filteredTicksPerSec = 0;
+
+    private double tps0 = 0;
+    private double tps1 = 0;
+    private double tps2 = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -86,37 +85,54 @@ public class ShooterTest extends LinearOpMode {
                 lastF = f;
             }
 
-            double vel = bot.shooter.getVelocity() * (60/ticksPerRev);
+            double vel = bot.shooter.getVelocity() * (60 / ticksPerRev);
             negatived = Math.abs(vel);
-
 
             // Raw speed calculation
             double rawTicksPerSec = (thisTicks - lastTicks) / dt;
+            double rawRPM = rawTicksPerSec * (60 / ticksPerRev);
 
-            double rawRPM = rawTicksPerSec *(60/ticksPerRev);
+            // -------- MEDIAN FILTER (ADDED) --------
+            tps0 = tps1;
+            tps1 = tps2;
+            tps2 = rawTicksPerSec;
+
+            double medianTicksPerSec = Math.max(
+                    Math.min(tps0, tps1),
+                    Math.min(Math.max(tps0, tps1), tps2)
+            );
+            // -------------------------------------
 
             // Low Pass Filter (RC filter)
             double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
             double alpha = dt / (RC + dt);
-            filteredTicksPerSec = filteredTicksPerSec + alpha * (rawTicksPerSec - filteredTicksPerSec);
+            filteredTicksPerSec = filteredTicksPerSec
+                    + alpha * (medianTicksPerSec - filteredTicksPerSec);
 
             double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
 
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
             if (targetVel == 0) {
-                shooterPower*= 0.7;
+                shooterPower *= 0.7;
             }
             bot.shooter.setPower(shooterPower);
 
             bot.intake.setPower(power);
 
 //            transferPID.setPID(tP, tI, tD);
-//            transferPower = transferPID.calculate(bot.transfer.getCurrentPosition(), (8192/3)*transferPos);
+//            transferPower = transferPID.calculate(
+//                    bot.transfer.getCurrentPosition(),
+//                    (8192 / 3) * transferPos
+//            );
             bot.transfer.setPower(power);
-//            turretPID.setPID(turretP, turretI, turretD);
-//            turretPower = turretPID.calculate(bot.turret.getCurrentPosition(), turretTarget);
-            bot.turret.setPower(turretPower);
 
+            turretPID.setPID(turretP, turretI, turretD);
+            turretPower = turretPID.calculate(
+                    bot.turret.getCurrentPosition(),
+                    turretTarget
+            );
+            bot.turret.setPower(turretPower);
+            bot.hood.setPosition(hoodPos);
 
             telemetry.addData("Filtered RPM", filteredRPM);
             telemetry.addData("Velocity: RPM", vel);
@@ -132,6 +148,7 @@ public class ShooterTest extends LinearOpMode {
 //            telemetry.addData("Transfer Target", transferPos);
 //            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
             telemetry.update();
+
             lastTicks = thisTicks;
             dt = timer.seconds();
             timer.reset();

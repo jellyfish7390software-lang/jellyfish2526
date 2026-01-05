@@ -53,7 +53,7 @@ public class Robot {
     public MecanumDrivePurePursuit drive;
     public DcMotorEx leftIntake, rightIntake, intake, shooter, turret;
     public DcMotorEx transfer;
-    public Servo diverter;
+    public Servo hood;
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
@@ -132,6 +132,8 @@ public class Robot {
 
         distance = hardwareMap.get(DistanceSensor.class, "distance");
         voltage = hardwareMap.voltageSensor.iterator().next();
+
+        hood = hardwareMap.get(Servo.class, "hood");
 
 //        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 //
