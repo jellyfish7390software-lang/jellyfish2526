@@ -90,8 +90,8 @@ data class Bezier(val controlPoints: MutableList<Vector>): ParameterizedObject, 
 
                 val deltaX = two.x - one.x
                 val deltaY = two.y - one.y
-                val x = t * deltaX
-                val y = t * deltaY
+                val x = t * deltaX + one.x
+                val y = t * deltaY + one.y
                 val h = atan2(deltaY, deltaX)
 
                 return Pose(x,y,h)
@@ -139,8 +139,8 @@ data class Bezier(val controlPoints: MutableList<Vector>): ParameterizedObject, 
 
                 val deltaX = two.x - one.x
                 val deltaY = two.y - one.y
-                val x = t * deltaX
-                val y = t * deltaY
+                val x = t * deltaX + one.x
+                val y = t * deltaY + one.y
                 val h = atan2(deltaY, deltaX)
 
                 return ParametricPose(x,y,h,t)

@@ -79,11 +79,11 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
     }
 
     object Defaults {
-        val posTolerance = 0.85
-        val hTolerance = 3.0.toRadians()
+        val posTolerance = 1.0
+        val hTolerance = 5.0.toRadians()
     }
 
-    @JvmField var kSQx = 0.05
+    @JvmField var kSQx = 0.06
     @JvmField var kSQy = 0.10
 
     var xSquid: SquIDController = SquIDController(kSQx)
@@ -293,7 +293,8 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         }
     }
 
-    fun followPathSingle(path: Bezier, packet: TelemetryPacket) {
+    @JvmOverloads
+    fun followPathSingle(path: Bezier, packet: TelemetryPacket, heading: Double? = null) {
         var targetPose = calculateTargetPose(path)
         path.draw(packet.fieldOverlay())
         telemetryPacket = packet
@@ -306,6 +307,10 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         telemetryPacket.put("TargetT", targetPose.t)
 
         targetPose = calculateTargetPose(path)
+
+        if (heading != null) {
+            targetPose = ParametricPose(targetPose.x, targetPose.y, heading, targetPose.t)
+        }
 
         this.targetPose = targetPose.toPose()
 
@@ -324,21 +329,18 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         updatePaths()
 
     }
-    fun followPathSingle(path: BezierPath, packet: TelemetryPacket) {
+    @JvmOverloads
+    fun followPathSingle(path: BezierPath, packet: TelemetryPacket, heading: Double? = null) {
         if (!path.isFollowable()) return
         var targetPose = calculateTargetPose(path)
 
-        val targetHeading = if (path.headingTargetsExist()) {
-            path.headingTargets.filter { it.t > targetPose.t }
-                .minByOrNull { it.t }
-                ?.heading ?: targetPose.h
-        } else {
-            targetPose.h
-        }
-
-        targetPose = ParametricPose(targetPose, targetHeading)
+        if (Maths.dist(pose, path.end().toPose()) < 12.0) atEnd = true
 
         singlePIDtoPoint(targetPose.toPose())
+
+        if (heading != null) {
+            targetPose = ParametricPose(targetPose.x, targetPose.y, heading, targetPose.t);
+        }
 
         updateSearchRadius(searchRad)
 

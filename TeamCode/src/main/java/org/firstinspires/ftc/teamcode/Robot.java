@@ -135,11 +135,6 @@ public class Robot {
 
         hood = hardwareMap.get(Servo.class, "hood");
 
-//        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-//
-//        for (LynxModule hub : allHubs) {
-//            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-//        }
 
 //        TODO: (10/31) Add correct config name once mounted
 //        intakeDistance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "intakeDistance");
@@ -149,11 +144,17 @@ public class Robot {
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 //
 //        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+
+
 //
 //        transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -175,6 +176,11 @@ public class Robot {
     }
     public Action followPath(Path path) {
         return new PurePursuitAction(purePursuit, path);
+    }
+    public Action followPathConstantHeading(Path path, double heading) {
+        PurePursuitAction action = new PurePursuitAction(purePursuit, path);
+        action.setConstantHeading(heading);
+        return action;
     }
 //    public void purplePath() {
 //        diverter.setPosition(0.8);

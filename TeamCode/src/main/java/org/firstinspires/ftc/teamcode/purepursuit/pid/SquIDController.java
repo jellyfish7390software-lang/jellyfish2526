@@ -19,6 +19,6 @@ public class SquIDController {
     }
 
     public double compute(double error) {
-        return kSQ * Math.pow(Math.abs(error), 1/1.5) * Math.signum(error);
+        return kSQ * Math.pow(Math.abs(error), 1/1.4) * Math.signum(error);
     }
 }

@@ -18,13 +18,14 @@ import org.firstinspires.ftc.teamcode.purepursuit.math.PurePursuit;
 public class PurePursuitTuner extends LinearOpMode {
     public Bezier curve = PurePursuit.builder
             .addControlPoint(0, 0)
-//            .addControlPoint(48, 0)
-            .addControlPoint(0, 48)
-            .addControlPoint(48,48)
+            .addControlPoint(0, 36)
+            .addControlPoint(36, 0)
+            .addControlPoint(36,36)
             .build();
     public Bezier curve2 = PurePursuit.builder
-            .addControlPoint(48,48)
-            .addControlPoint(48,0)
+            .addControlPoint(36,36)
+            .addControlPoint(36,0)
+            .addControlPoint(0,36)
             .addControlPoint(0,0)
             .build();
     @Override
@@ -36,8 +37,8 @@ public class PurePursuitTuner extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            Actions.runBlocking(bot.followPath(curve));
-            Actions.runBlocking(bot.followPath(curve2));
+            Actions.runBlocking(bot.followPathConstantHeading(curve, 0));
+            Actions.runBlocking(bot.followPathConstantHeading(curve2, 0));
         }
 
     }
