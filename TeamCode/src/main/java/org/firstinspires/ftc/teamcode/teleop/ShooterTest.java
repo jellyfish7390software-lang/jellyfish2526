@@ -32,6 +32,8 @@ public class ShooterTest extends LinearOpMode {
     public static double tP = 0.0015, tI = 0, tD = 0;
     public static double turretP = 0.01, turretI = 0, turretD = 0;
 
+    public static double intakePower = 0.0;
+
     public static int transferPos = 0;
     public PIDController transferPID;
     public PIDFController shooterPID = new PIDFController(p, i, d, f);
@@ -113,18 +115,24 @@ public class ShooterTest extends LinearOpMode {
 
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
             if (targetVel == 0) {
-                shooterPower *= 0.7;
+                shooterPower = 0;
             }
             bot.shooter.setPower(shooterPower);
 
-            bot.intake.setPower(power);
+            if (power == 0) {
+                bot.intake.setPower(intakePower);
+                bot.transfer.setPower(transferPower);
+            }
+            else {
+                bot.intake.setPower(power);
+                bot.transfer.setPower(power);
+            }
 
-//            transferPID.setPID(tP, tI, tD);
-//            transferPower = transferPID.calculate(
-//                    bot.transfer.getCurrentPosition(),
-//                    (8192 / 3) * transferPos
-//            );
-            bot.transfer.setPower(power);
+            transferPID.setPID(tP, tI, tD);
+            transferPower = transferPID.calculate(
+                    bot.transfer.getCurrentPosition(),
+                    (8192 / 3) * transferPos
+            );
 
             turretPID.setPID(turretP, turretI, turretD);
             turretPower = turretPID.calculate(
@@ -133,6 +141,7 @@ public class ShooterTest extends LinearOpMode {
             );
             bot.turret.setPower(turretPower);
             bot.hood.setPosition(hoodPos);
+
 
             telemetry.addData("Filtered RPM", filteredRPM);
             telemetry.addData("Velocity: RPM", vel);
@@ -145,8 +154,8 @@ public class ShooterTest extends LinearOpMode {
             telemetry.addData("TurretPos", bot.turret.getCurrentPosition());
             telemetry.addData("Turret Target", turretTarget);
             telemetry.addData("TurretPower", turretPower);
-//            telemetry.addData("Transfer Target", transferPos);
-//            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
+            telemetry.addData("Transfer Target", transferPos);
+            telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
             telemetry.update();
 
             lastTicks = thisTicks;

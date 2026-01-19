@@ -15,17 +15,9 @@ public class ActionList {
     public Action setShooterVelocity(int vel) {
         return new InstantAction(() -> bot.setShooterVelocity(vel));
     }
-    public Action setTransferPosition(int pos) {
-        return new InstantAction(() -> bot.setTransferPosition(pos));
-    }
-    public Action incrementTransfer(int increment) {
-        return new InstantAction(() -> bot.incrementTransfer(increment));
-    }
+
     public Action setIntakePower(double power) {
         return new InstantAction(() -> bot.intakePower(power));
-    }
-    public Action turnTransfer() {
-        return new InstantAction(() -> bot.turnTransfer());
     }
     public Action startCheckLoop() {
         return new InstantAction(() -> Robot.runCheckLoop = true);

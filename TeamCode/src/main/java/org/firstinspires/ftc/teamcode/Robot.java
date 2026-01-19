@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerImpl;
@@ -53,7 +54,7 @@ public class Robot {
     public MecanumDrivePurePursuit drive;
     public DcMotorEx leftIntake, rightIntake, intake, shooter, turret;
     public DcMotorEx transfer;
-    public Servo hood;
+    public Servo hood, hardstop;
     public WebcamName ballCam, tagCam;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
@@ -66,15 +67,18 @@ public class Robot {
     public Gamepad gamepad1, gamepad2;
     public VoltageSensor voltage;
 
-    public static double p = 0.002, i = 0, d = 0, f = 0.00024;
+    public static boolean shooting = false;
+
+    public static double p = 0.02, i = 0, d = 0, f = 0.000205;
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
     public static double FILTER_CUTOFF = 5;   // Hz (adjustable in dashboard)
     private double filteredTicksPerSec = 0;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
-    public static double tP = 0.00085, tI = 0, tD = 0;
+    public static double tP = 0.0015, tI = 0, tD = 0;
     public static double hP = 0.04, hI = 0, hD = 0;
+    public double turretPos = 0;
 
     public static double leftOffset = -1.5, rightOffset = 1;
     public PIDController hPID = new PIDController(hP, hI, hD);
@@ -87,8 +91,9 @@ public class Robot {
     public static double ballDist = 0;
 
     public static double targetVel = 0;
-    public static int transferTarget = 0;
     public static double intakePower = 0;
+    public static double transferPower = 0;
+    public static double turretTarget = 0;
 
     public static double rpm = 0;
 
@@ -97,54 +102,52 @@ public class Robot {
     public static boolean runScoringLoop = true;
     public static boolean runCheckLoop = false;
 
-    public PIDController transferPID;
     public PIDFController shooterPID = new PIDFController(p, i, d, f);
+    public PIDController turretPID = new PIDController(tP, tI, tD);
 
     public static double TAG_HEIGHT = 38.75-9.25;
     public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
-    public static int closeRPM = 2900;
-    public static int farRPM = 3750;
+    public static int closeRPM = 2450;
+    public static int farRPM = 3200;
+    public static double HardstopOpen = 0.3;
+    public static double HardstopClose = 0.12;
 
     public static int ballCount = 0;
     public static boolean ShouldTurn = false;
 
     public static double heading;
 
+    public static double tps0 = 0;
+    public static double tps1 = 0;
+    public static double tps2 = 0;
+    public double dt;
+
     public ElapsedTime timer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap) {
         targetVel = 0;
-        transferTarget = 0;
         intakePower = 0;
+        transferPower = 0;
         ballDist = 0;
         ballCount = 0;
+        turretTarget = 0;
         drive = new MecanumDrivePurePursuit(hardwareMap, new Pose2d(0, 0, 0));
 
         purePursuit = new PurePursuit(drive);
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-//
+
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
         turret = hardwareMap.get(DcMotorEx.class, "turret");
 
-        distance = hardwareMap.get(DistanceSensor.class, "distance");
+//        distance = hardwareMap.get(DistanceSensor.class, "distance");
         voltage = hardwareMap.voltageSensor.iterator().next();
 
         hood = hardwareMap.get(Servo.class, "hood");
-
-
-//        TODO: (10/31) Add correct config name once mounted
-//        intakeDistance = (DistanceSensor) hardwareMap.get(ColorSensor.class, "intakeDistance");
-
-//        tagCam = hardwareMap.get(WebcamName.class, "tagCam");
-//
-//        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-//
-//        intake.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        hardstop = hardwareMap.get(Servo.class, "hardstop");
 
 
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -154,18 +157,20 @@ public class Robot {
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//
-//        transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
+        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        transferPID = new PIDController(tP, tI, tD);
         shooterPID.setPIDF(p, i, d, f);
+        turretPID.setPID(tP, tI, tD);
 
         timer.reset();
 
-//        lastTicks = shooter.getCurrentPosition();
+        lastTicks = shooter.getCurrentPosition();
+        turretPos = turret.getCurrentPosition();
+
+        dt = timer.seconds();
 
     }
 
@@ -182,29 +187,20 @@ public class Robot {
         action.setConstantHeading(heading);
         return action;
     }
-//    public void purplePath() {
-//        diverter.setPosition(0.8);
-//    }
-//    public void greenPath() {
-//        diverter.setPosition(1);
-//    }
+
+
     public Action scoringLoop() {
         return new ScoringLoop();
     }
     public void setShooterVelocity(int vel) {
         targetVel = vel;
     }
-    public void setTransferPosition(int target) {
-        transferTarget = target;
-    }
-    public void incrementTransfer(int increment) {
-        transferTarget += increment;
-    }
     public double batteryScale(double num) {
         return (12.5/voltage.getVoltage()) * num;
     }
     public void scoringLoopTele() {
-        transferPID.setPID(tP, tI, tD);
+        thisTicks = shooter.getCurrentPosition();
+        turretPos = turret.getCurrentPosition();
 
         if (p != lastP || i != lastI || d != lastD || f != lastF) {
             shooterPID.setPIDF(p, i, d, f);
@@ -214,32 +210,47 @@ public class Robot {
             lastF = f;
         }
 
-        double now = timer.seconds();
-        double dt = now - lastTime;
-        lastTime = now;
-        if (dt <= 0) dt = 0.001;
 
-        thisTicks = -shooter.getCurrentPosition();
-
+        // Raw speed calculation
         double rawTicksPerSec = (thisTicks - lastTicks) / dt;
-        double rawRPM = rawTicksPerSec * (60 / ticksPerRev);
 
+        // -------- MEDIAN FILTER (ADDED) --------
+        tps0 = tps1;
+        tps1 = tps2;
+        tps2 = rawTicksPerSec;
+
+        double medianTicksPerSec = Math.max(
+                Math.min(tps0, tps1),
+                Math.min(Math.max(tps0, tps1), tps2)
+        );
+        // -------------------------------------
+
+        // Low Pass Filter (RC filter)
         double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
         double alpha = dt / (RC + dt);
-        filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
-        double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
+        filteredTicksPerSec = filteredTicksPerSec
+                + alpha * (medianTicksPerSec - filteredTicksPerSec);
 
+        double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
         rpm = filteredRPM;
 
         double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-        shooter.setPower(batteryScale(shooterPower));
+        if (targetVel == 0) {
+            shooterPower = 0;
+        }
+        shooter.setPower(shooterPower);
 
-        double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
         transfer.setPower(transferPower);
 
         intakePower(intakePower);
 
+        turretPID.setPID(tP, tI, tD);
+        double turretPower = turretPID.calculate(turretPos, turretTarget);
+        turret.setPower(turretPower);
+
         lastTicks = thisTicks;
+        dt = timer.seconds();
+        timer.reset();
     }
 
     public class ScoringLoop implements Action {
@@ -250,7 +261,8 @@ public class Robot {
         }
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            transferPID.setPID(tP, tI, tD);
+            thisTicks = shooter.getCurrentPosition();
+            turretPos = turret.getCurrentPosition();
 
             if (p != lastP || i != lastI || d != lastD || f != lastF) {
                 shooterPID.setPIDF(p, i, d, f);
@@ -260,99 +272,114 @@ public class Robot {
                 lastF = f;
             }
 
-            double now = timer.seconds();
-            double dt = now - lastTime;
-            lastTime = now;
-            if (dt <= 0) dt = 0.001;
 
-            thisTicks = -shooter.getCurrentPosition();
-
+            // Raw speed calculation
             double rawTicksPerSec = (thisTicks - lastTicks) / dt;
-            double rawRPM = rawTicksPerSec * (60 / ticksPerRev);
 
+            // -------- MEDIAN FILTER (ADDED) --------
+            tps0 = tps1;
+            tps1 = tps2;
+            tps2 = rawTicksPerSec;
+
+            double medianTicksPerSec = Math.max(
+                    Math.min(tps0, tps1),
+                    Math.min(Math.max(tps0, tps1), tps2)
+            );
+            // -------------------------------------
+
+            // Low Pass Filter (RC filter)
             double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
             double alpha = dt / (RC + dt);
-            filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
-            double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
+            filteredTicksPerSec = filteredTicksPerSec
+                    + alpha * (medianTicksPerSec - filteredTicksPerSec);
 
+            double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
             rpm = filteredRPM;
 
             double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-            shooter.setPower(batteryScale(shooterPower));
+            if (targetVel == 0) {
+                shooterPower = 0;
+            }
+            shooter.setPower(shooterPower);
 
-            double transferPower = transferPID.calculate(transfer.getCurrentPosition(), transferTarget);
-            transfer.setPower(transferPower);
+            transferPower(transferPower);
 
             intakePower(intakePower);
 
+            turretPID.setPID(tP, tI, tD);
+            double turretPower = turretPID.calculate(turretPos, turretTarget);
+            turret.setPower(turretPower);
+
             lastTicks = thisTicks;
+            dt = timer.seconds();
+            timer.reset();
 
             return Robot.runScoringLoop;
         }
-    }
-    public void turnTransfer() {
-        transferTarget += 8192/3;
     }
     public double regressF(double targetVel) {
         if (targetVel != 0) return (0.0530089/(targetVel)) + 0.000192333;
         else return 0;
     }
-    public Action turnTransferAction() {
-        return new InstantAction(() -> transferTarget += 8192/3);
-    }
     public void setGamepads(Gamepad gamepad1, Gamepad gamepad2) {
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
     }
-    public Action autoCheckTransfer() {
-        return new LoopAction(() -> {
-            if (runCheckLoop) checkTransferTele();
-        });
+    public void transferPower(double transferPower) {
+        transfer.setPower(transferPower);
+        Robot.transferPower = transferPower;
     }
-    public void checkTransferTele() {
-        double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
-        Robot.ballDist = distance.getDistance(DistanceUnit.MM);
 
+//    public Action autoCheckTransfer() {
+//        return new LoopAction(() -> {
+//            if (runCheckLoop) checkTransferTele();
+//        });
+//    }
+//    public void checkTransferTele() {
+//        double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
+//        Robot.ballDist = distance.getDistance(DistanceUnit.MM);
+//
+//
+//        if (Robot.ballDist > 0 && Robot.ballDist < 40 && timer.seconds() > 0.75) {
+//            if (ballCount < 1) turnTransfer();
+//
+//            timer.reset();
+//
+//            ballCount++;
+//
+//            if (ballCount > 2 && intakeDist > 0 && intakeDist < 15) {
+//                intakePower(0);
+//            }
+//
+//        }
+//    }
+//    public class CheckTransfer implements Action {
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+//            double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
+//
+//            boolean shouldTurn = Robot.runCheckLoop;
+//
+//            if (Robot.ballDist > 0 && Robot.ballDist < 40 && timer.seconds() > 0.75) {
+//                if (shouldTurn) turnTransfer();
+//
+//                timer.reset();
+//
+//                ballCount++;
+//                if (ballCount >= 1) {
+//                    shouldTurn = false;
+//                }
+//
+//                if (ballCount > 2 && intakeDist > 0 && intakeDist < 15) {
+//                    intakePower(0);
+//                }
+//
+//                Robot.ShouldTurn = shouldTurn;
+//            }
+//            return Robot.runCheckLoop;
+//        }
+//    }
 
-        if (Robot.ballDist > 0 && Robot.ballDist < 40 && timer.seconds() > 0.75) {
-            if (ballCount < 1) turnTransfer();
-
-            timer.reset();
-
-            ballCount++;
-
-            if (ballCount > 2 && intakeDist > 0 && intakeDist < 15) {
-                intakePower(0);
-            }
-
-        }
-    }
-    public class CheckTransfer implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            double intakeDist = intakeDistance.getDistance(DistanceUnit.MM);
-
-            boolean shouldTurn = Robot.runCheckLoop;
-
-            if (Robot.ballDist > 0 && Robot.ballDist < 40 && timer.seconds() > 0.75) {
-                if (shouldTurn) turnTransfer();
-
-                timer.reset();
-
-                ballCount++;
-                if (ballCount >= 1) {
-                    shouldTurn = false;
-                }
-
-                if (ballCount > 2 && intakeDist > 0 && intakeDist < 15) {
-                    intakePower(0);
-                }
-
-                Robot.ShouldTurn = shouldTurn;
-            }
-            return Robot.runCheckLoop;
-        }
-    }
     public Action driveAction(Gamepad gamepad) {
         return new LoopAction(() -> arcadeDrive(gamepad));
     }
@@ -392,68 +419,23 @@ public class Robot {
             telemetry.addData("Target", Robot.targetVel);
             telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
             telemetry.update();
-            return Math.abs(getRpm() - targetVel) > 10;});
+            return Math.abs(getRpm() - targetVel) > 15;});
     }
     /// New
-    public Action shootFull(Telemetry telemetry) {
-        return new SequentialAction(
-                turnTransferAction(),
-                sleepWithPIDTeleop(0.75, gamepad1, telemetry),
-                new InstantAction(() -> targetVel -= 20),
-                new InstantAction(() -> intakePower(1)),
-                waitForDriver(gamepad1, telemetry),
-                turnTransferAction(),
-                sleepWithPIDTeleop(0.75, gamepad1, telemetry),
-                waitForDriver(gamepad1, telemetry),
-                turnTransferAction(),
-                new InstantAction(() -> ballCount = 0));
-    }
-    public Action shootFullAuto(Telemetry telemetry) {
-        return new RaceAction(new SequentialAction(
-                waitForIntake(telemetry),
-                turnTransferAction(),
-                new InstantAction(() -> targetVel += 28),
-                new InstantAction(() -> intakePower(1)),
-                sleepWithPID(0.5),
-                waitForIntake(telemetry),
-                turnTransferAction(),
-                new InstantAction(() -> targetVel -= 48),
-                sleepWithPID(0.5),
-                waitForIntake(telemetry),
-                turnTransferAction(),
-                new InstantAction(() -> ballCount = 0)),
-                new LoopAction(() -> {
-                    telemetry.addData("Vel", getRpm());
-                    telemetry.addData("Target", Robot.targetVel);
-                    telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
-                    telemetry.update();
-                }));
-    }
-    public Action shootFullAutoFar(Telemetry telemetry) {
-        return new RaceAction(new SequentialAction(
-//                new InstantAction(() -> targetVel += 50),
-                waitForIntake(telemetry),
-                turnTransferAction(),
-                new InstantAction(() -> intakePower(1)),
-                sleepWithPID(0.5),
-//                new InstantAction(() -> targetVel -= 50),
-                waitForIntake(telemetry),
-                turnTransferAction(),
-                sleepWithPID(0.5),
-                waitForIntake(telemetry),
-                turnTransferAction(),
-                new InstantAction(() -> ballCount = 0)),
-                new LoopAction(() -> {
-                    telemetry.addData("Vel", getRpm());
-                    telemetry.addData("Target", Robot.targetVel);
-                    telemetry.addData("inRange", Math.abs(getRpm() - targetVel) <30);
-                    telemetry.update();
-                }));
+    public void shootFull(Telemetry telemetry) {
+        shooting = true;
+        hardstop.setPosition(HardstopOpen);
+        Actions.runBlocking(sleepWithPIDTeleop(0.5, gamepad1, telemetry));
+        transferPower(1);
+        intakePower(1);
+        Actions.runBlocking(sleepWithPIDTeleop(1.5, gamepad1, telemetry));
+        hardstop.setPosition(HardstopClose);
+        transferPower(0);
+        intakePower(0);
+        shooting = false;
     }
     /// New
-    public Action checkTransfer() {
-        return new CheckTransfer();
-    }
+
     public void intakePower(double power) {
         intakePower = power;
 //        intake.setPower(power);
@@ -535,7 +517,7 @@ public class Robot {
 
     //TODO: AprilTag Code
 
-    public Pose2d getBotPose(MecanumDrive drive) {
+    public Pose2d getBotPose(MecanumDrivePurePursuit drive) {
         detections = tagProcessor.getDetections();
         if (detections.isEmpty()) return drive.localizer.getPose();
 

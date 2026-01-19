@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" parentModuleAddress="173" serialNumber="(embedded)">
+        <LynxModule name="Control Hub" port="173">
+
+            <!-- Motors -->
+            <goBILDA5202SeriesMotor name="" port="0" />
+            <goBILDA5202SeriesMotor name="rightBack" port="1" />
+            <goBILDA5202SeriesMotor name="rightFront" port="3" />
+            <goBILDA5202SeriesMotor name="intake" port="2" />
+
+            <!-- Servos -->
+            <!--            <Servo name="rightPTO" port="0" />-->
+            <!--            <Servo name="flipper" port="1" />-->
+            <!--            <Servo name="leftSweeper" port="3" />-->
+            <!--            <Servo name="rightPitch" port="4" />-->
+            <!-- I2C -->
+            <LynxEmbeddedIMU name="imu" bus="0" port="0" />
+            <goBILDAPinpoint name="pinpoint" bus="1" port="1" />
+
+
+            <RevColorSensorV3 name="distance" bus="2" port="0" />
+            <!--            <RevColorSensorV3 name="colorSensorRight" bus="3" port="0" />-->
+            <!--            <RevColorSensorV3 name="colorSensorRight" bus="3" port="0" />-->
+            <!--            3 is ORANGE FOR COLOR SENSOR-->
+        </LynxModule>
+        <LynxModule name="Expansion Hub 2" port="2">
+            <!-- Motors -->
+
+            <goBILDA5202SeriesMotor name="transfer" port="0" />
+            <goBILDA5202SeriesMotor name="" port="1" />
+            <goBILDA5202SeriesMotor name="leftBack" port="2" />
+            <goBILDA5202SeriesMotor name="leftFront" port="3" />
+
+            <!--            <goBILDA5202SeriesMotor name="right" port="3" />-->
+            <!-- Servos -->
+            <!--            <Servo name="diverter" port="0" />-->
+            <!--            <Servo name="rightSweeper" port="2" />-->
+            <!--            <Servo name="wrist" port="3" />-->
+            <!--            <Servo name="leftPitch" port="4" />-->
+            <!--            <Servo name="claw" port="5" />-->
+            <!-- Analog -->
+            <!--            <AnalogInput name="elc" port="0" />-->
+            <!--            <AnalogInput name="wristAnalog" port="2" />-->
+            <REV_VL53L0X_RANGE_SENSOR name="distance" bus="0" port="1" />
+
+        </LynxModule>
+
+    </LynxUsbDevice>
+
+    <Webcam name="tagcam" serialNumber="4D23DE60" />
+
+</Robot>
+

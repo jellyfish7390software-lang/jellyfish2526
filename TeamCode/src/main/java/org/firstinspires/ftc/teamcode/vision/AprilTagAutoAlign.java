@@ -55,9 +55,6 @@ public class AprilTagAutoAlign extends LinearOpMode {
             drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0,0), -hPower));
 
             drive.updatePoseEstimate();
-            telemetry.addData("X", bot.getBotPose(drive).position.x);
-            telemetry.addData("Y", bot.getBotPose(drive).position.y);
-            telemetry.addData("H", Math.toDegrees(bot.getBotPose(drive).heading.toDouble()));
             telemetry.addData("ActualX", drive.localizer.getPose().position.x);
             telemetry.addData("ActualY", drive.localizer.getPose().position.y);
             telemetry.addData("ActualH", drive.localizer.getPose().heading.toDouble());
