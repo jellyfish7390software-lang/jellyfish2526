@@ -55,7 +55,7 @@ public class Robot {
     public DcMotorEx leftIntake, rightIntake, intake, shooter, turret;
     public DcMotorEx transfer;
     public Servo hood, hardstop;
-    public WebcamName ballCam, tagCam;
+    public WebcamName camera;
     public AprilTagProcessor tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
     public List<AprilTagDetection> detections;
     public DistanceSensor distance, intakeDistance;
@@ -72,11 +72,12 @@ public class Robot {
     public static double p = 0.02, i = 0, d = 0, f = 0.000205;
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
-    public static double FILTER_CUTOFF = 5;   // Hz (adjustable in dashboard)
+    public static double FILTER_CUTOFF = 1.5;   // Hz (adjustable in dashboard)
     private double filteredTicksPerSec = 0;
+    public static double rawRpm = 0;
 //    public static double tP = -0.001, tI = 0, tD = 0;
 
-    public static double tP = 0.0015, tI = 0, tD = 0;
+    public static double tP = 0.01, tI = 0, tD = 0;
     public static double hP = 0.04, hI = 0, hD = 0;
     public double turretPos = 0;
 
@@ -87,6 +88,7 @@ public class Robot {
     public static double ticksPerRev = 8192.0;
 
     public double lastTicks = 0, thisTicks = 0;
+    public static boolean closeMode = false;
 
     public static double ballDist = 0;
 
@@ -109,10 +111,11 @@ public class Robot {
     public static Vector2d RED_GOAL_TAG = new Vector2d(-58.27, 55.63);
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
+    public static double ticksToDegrees = 90.0/500.0;
     public static int closeRPM = 2450;
-    public static int farRPM = 3200;
-    public static double HardstopOpen = 0.3;
-    public static double HardstopClose = 0.12;
+    public static int farRPM = 3400;
+    public static double HardstopOpen = 0.97;
+    public static double HardstopClose = 0.8;
 
     public static int ballCount = 0;
     public static boolean ShouldTurn = false;
@@ -123,6 +126,20 @@ public class Robot {
     public static double tps1 = 0;
     public static double tps2 = 0;
     public double dt;
+    public ElapsedTime shooterTimer = new ElapsedTime();
+
+    // Sliding window for moving average
+    private static final int VELOCITY_WINDOW_SIZE = 5;
+    private final double[] velocityWindow = new double[VELOCITY_WINDOW_SIZE];
+    private int velocityWindowIdx = 0;
+
+    private static final int VELOCITY_HISTORY_SIZE = 5;
+    private final double[] tickHistory = new double[VELOCITY_HISTORY_SIZE];
+    private final double[] timeHistory = new double[VELOCITY_HISTORY_SIZE];
+    private int historyIdx = 0;
+
+
+
 
     public ElapsedTime timer = new ElapsedTime();
 
@@ -149,6 +166,8 @@ public class Robot {
         hood = hardwareMap.get(Servo.class, "hood");
         hardstop = hardwareMap.get(Servo.class, "hardstop");
 
+        camera = hardwareMap.get(WebcamName.class, "camera");
+
 
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -171,6 +190,7 @@ public class Robot {
         turretPos = turret.getCurrentPosition();
 
         dt = timer.seconds();
+        shooterTimer.reset();
 
     }
 
@@ -199,9 +219,12 @@ public class Robot {
         return (12.5/voltage.getVoltage()) * num;
     }
     public void scoringLoopTele() {
+
+        // --- Read encoders ---
         thisTicks = shooter.getCurrentPosition();
         turretPos = turret.getCurrentPosition();
 
+        // --- Update PID if changed ---
         if (p != lastP || i != lastI || d != lastD || f != lastF) {
             shooterPID.setPIDF(p, i, d, f);
             lastP = p;
@@ -210,48 +233,46 @@ public class Robot {
             lastF = f;
         }
 
+        // --- Time step (FIXED, no reset) ---
+        double now = shooterTimer.seconds();
+        dt = now - lastTime;
+        lastTime = now;
 
-        // Raw speed calculation
+        // Clamp dt to avoid spikes
+        dt = Math.max(dt, 0.005);
+
+        // --- Velocity estimate ---
         double rawTicksPerSec = (thisTicks - lastTicks) / dt;
 
-        // -------- MEDIAN FILTER (ADDED) --------
-        tps0 = tps1;
-        tps1 = tps2;
-        tps2 = rawTicksPerSec;
+        // --- Simple LPF (NO RC math) ---
+        double alpha = 0.15; // tune 0.1–0.25
+        filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
 
-        double medianTicksPerSec = Math.max(
-                Math.min(tps0, tps1),
-                Math.min(Math.max(tps0, tps1), tps2)
-        );
-        // -------------------------------------
+        rpm = filteredTicksPerSec * 60.0 / ticksPerRev;
 
-        // Low Pass Filter (RC filter)
-        double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
-        double alpha = dt / (RC + dt);
-        filteredTicksPerSec = filteredTicksPerSec
-                + alpha * (medianTicksPerSec - filteredTicksPerSec);
+        // --- Shooter PID ---
+        double shooterPower = shooterPID.calculate(rpm, targetVel);
 
-        double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
-        rpm = filteredRPM;
+        // Clamp output
+        shooterPower = Math.max(-1.0, Math.min(1.0, shooterPower));
 
-        double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-        if (targetVel == 0) {
-            shooterPower = 0;
-        }
+        if (targetVel == 0) shooterPower = 0;
+
         shooter.setPower(shooterPower);
 
+        // --- Other subsystems ---
         transfer.setPower(transferPower);
-
         intakePower(intakePower);
 
         turretPID.setPID(tP, tI, tD);
-        double turretPower = turretPID.calculate(turretPos, turretTarget);
-        turret.setPower(turretPower);
+        turret.setPower(turretPID.calculate(turretPos, turretTarget));
 
         lastTicks = thisTicks;
-        dt = timer.seconds();
-        timer.reset();
     }
+
+
+
+
 
     public class ScoringLoop implements Action {
         public double dt;
@@ -261,9 +282,13 @@ public class Robot {
         }
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+
+            // --- Read encoders ---
             thisTicks = shooter.getCurrentPosition();
             turretPos = turret.getCurrentPosition();
 
+            // --- Update PID if changed ---
             if (p != lastP || i != lastI || d != lastD || f != lastF) {
                 shooterPID.setPIDF(p, i, d, f);
                 lastP = p;
@@ -272,50 +297,45 @@ public class Robot {
                 lastF = f;
             }
 
+            // --- Time step (FIXED, no reset) ---
+            double now = shooterTimer.seconds();
+            dt = now - lastTime;
+            lastTime = now;
 
-            // Raw speed calculation
+            // Clamp dt to avoid spikes
+            dt = Math.max(dt, 0.005);
+
+            // --- Velocity estimate ---
             double rawTicksPerSec = (thisTicks - lastTicks) / dt;
 
-            // -------- MEDIAN FILTER (ADDED) --------
-            tps0 = tps1;
-            tps1 = tps2;
-            tps2 = rawTicksPerSec;
+            // --- Simple LPF (NO RC math) ---
+            double alpha = 0.15; // tune 0.1–0.25
+            filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
 
-            double medianTicksPerSec = Math.max(
-                    Math.min(tps0, tps1),
-                    Math.min(Math.max(tps0, tps1), tps2)
-            );
-            // -------------------------------------
+            rpm = filteredTicksPerSec * 60.0 / ticksPerRev;
 
-            // Low Pass Filter (RC filter)
-            double RC = 1.0 / (2 * Math.PI * FILTER_CUTOFF);
-            double alpha = dt / (RC + dt);
-            filteredTicksPerSec = filteredTicksPerSec
-                    + alpha * (medianTicksPerSec - filteredTicksPerSec);
+            // --- Shooter PID ---
+            double shooterPower = shooterPID.calculate(rpm, targetVel);
 
-            double filteredRPM = filteredTicksPerSec / ticksPerRev * 60.0;
-            rpm = filteredRPM;
+            // Clamp output
+            shooterPower = Math.max(-1.0, Math.min(1.0, shooterPower));
 
-            double shooterPower = shooterPID.calculate(filteredRPM, targetVel);
-            if (targetVel == 0) {
-                shooterPower = 0;
-            }
+            if (targetVel == 0) shooterPower = 0;
+
             shooter.setPower(shooterPower);
 
-            transferPower(transferPower);
-
+            // --- Other subsystems ---
+            transfer.setPower(transferPower);
             intakePower(intakePower);
 
             turretPID.setPID(tP, tI, tD);
-            double turretPower = turretPID.calculate(turretPos, turretTarget);
-            turret.setPower(turretPower);
+            turret.setPower(turretPID.calculate(turretPos, turretTarget));
 
             lastTicks = thisTicks;
-            dt = timer.seconds();
-            timer.reset();
 
             return Robot.runScoringLoop;
         }
+
     }
     public double regressF(double targetVel) {
         if (targetVel != 0) return (0.0530089/(targetVel)) + 0.000192333;
@@ -383,6 +403,9 @@ public class Robot {
     public Action driveAction(Gamepad gamepad) {
         return new LoopAction(() -> arcadeDrive(gamepad));
     }
+    public void setTurretPos(double pos) {
+        turretTarget = pos;
+    }
     public Action sleepWithPID(double dt) {
         return new RaceAction(new SleepAction(dt), scoringLoop());
     }
@@ -423,17 +446,33 @@ public class Robot {
     }
     /// New
     public void shootFull(Telemetry telemetry) {
-        shooting = true;
-        hardstop.setPosition(HardstopOpen);
-        Actions.runBlocking(sleepWithPIDTeleop(0.5, gamepad1, telemetry));
-        transferPower(1);
-        intakePower(1);
-        Actions.runBlocking(sleepWithPIDTeleop(1.5, gamepad1, telemetry));
-        hardstop.setPosition(HardstopClose);
-        transferPower(0);
-        intakePower(0);
-        shooting = false;
+        if (closeMode) {
+            shooting = true;
+            hardstop.setPosition(HardstopOpen);
+            Actions.runBlocking(sleepWithPIDTeleop(0.5, gamepad1, telemetry));
+            transferPower(1);
+            intakePower(1);
+            Actions.runBlocking(sleepWithPIDTeleop(1.5, gamepad1, telemetry));
+            hardstop.setPosition(HardstopClose);
+            transferPower(0);
+            intakePower(0);
+            shooting = false;
+        }
+        else {
+            shooting = true;
+            hardstop.setPosition(HardstopOpen);
+            Actions.runBlocking(sleepWithPIDTeleop(0.5, gamepad1, telemetry));
+            transferPower(0.8);
+            intakePower(1);
+            Actions.runBlocking(sleepWithPIDTeleop(1.5, gamepad1, telemetry));
+            hardstop.setPosition(HardstopClose);
+            transferPower(0);
+            intakePower(0);
+            shooting = false;
+        }
     }
+
+
     /// New
 
     public void intakePower(double power) {
@@ -462,23 +501,23 @@ public class Robot {
         if (atagAlign) {
             atagAlign(-y, x);
         }
-        if (gamepad1.dpad_up) {
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(1, 0),0));
-        }
-        if (gamepad1.dpad_down) {
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-1, 0),0));
-        }
-        if (gamepad1.dpadLeftWasPressed() || gamepad1.dpadRightWasPressed()) {
-            heading = drive.localizer.getPose().heading.toDouble();
-        }
-        if (gamepad1.dpad_left) {
-            double hPower = hPID.calculate(drive.localizer.getPose().heading.toDouble(), heading);
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 1),hPower));
-        }
-        if (gamepad1.dpad_right) {
-            double hPower = hPID.calculate(drive.localizer.getPose().heading.toDouble(), heading);
-            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, -1), hPower));
-        }
+//        if (gamepad1.dpad_up) {
+//            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(1, 0),0));
+//        }
+//        if (gamepad1.dpad_down) {
+//            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(-1, 0),0));
+//        }
+//        if (gamepad1.dpadLeftWasPressed() || gamepad1.dpadRightWasPressed()) {
+//            heading = drive.localizer.getPose().heading.toDouble();
+//        }
+//        if (gamepad1.dpad_left) {
+//            double hPower = hPID.calculate(drive.localizer.getPose().heading.toDouble(), heading);
+//            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 1),hPower));
+//        }
+//        if (gamepad1.dpad_right) {
+//            double hPower = hPID.calculate(drive.localizer.getPose().heading.toDouble(), heading);
+//            drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, -1), hPower));
+//        }
     }
     public double getRpm() {
         return rpm;

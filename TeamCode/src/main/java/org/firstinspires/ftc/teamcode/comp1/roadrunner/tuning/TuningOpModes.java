@@ -38,12 +38,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.OTOSLocalizer;
-import org.firstinspires.ftc.teamcode.comp1.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.TwoDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.purepursuit.MecanumDrivePurePursuit;
-import org.firstinspires.ftc.teamcode.purepursuit.TwoDeadWheelLocalizerPurePursuit;
+import org.firstinspires.ftc.teamcode.purepursuit.PinpointLocalizerPurePursuit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +65,7 @@ public final class TuningOpModes {
                 .build();
     }
 
-    private static PinpointView makePinpointView(PinpointLocalizer pl) {
+    private static PinpointView makePinpointView(PinpointLocalizerPurePursuit pl) {
         return new PinpointView() {
             GoBildaPinpointDriver.EncoderDirection parDirection = pl.initialParDirection;
             GoBildaPinpointDriver.EncoderDirection perpDirection = pl.initialPerpDirection;
@@ -153,8 +152,8 @@ public final class TuningOpModes {
                     parEncs.add(new EncoderRef(0, 0));
                     parEncs.add(new EncoderRef(0, 1));
                     perpEncs.add(new EncoderRef(0, 2));
-                } else if (md.localizer instanceof TwoDeadWheelLocalizerPurePursuit) {
-                    TwoDeadWheelLocalizerPurePursuit dl = (TwoDeadWheelLocalizerPurePursuit) md.localizer;
+                } else if (md.localizer instanceof TwoDeadWheelLocalizer) {
+                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
                     encoderGroups.add(new LynxQuadratureEncoderGroup(
                             hardwareMap.getAll(LynxModule.class),
                             Arrays.asList(dl.par, dl.perp)
@@ -167,8 +166,8 @@ public final class TuningOpModes {
                     parEncs.add(new EncoderRef(0, 0));
                     perpEncs.add(new EncoderRef(0, 1));
                     lazyImu = new OTOSIMU(ol.otos);
-                }  else if (md.localizer instanceof PinpointLocalizer) {
-                    PinpointView pv = makePinpointView((PinpointLocalizer) md.localizer);
+                }  else if (md.localizer instanceof PinpointLocalizerPurePursuit) {
+                    PinpointView pv = makePinpointView((PinpointLocalizerPurePursuit) md.localizer);
                     encoderGroups.add(new PinpointEncoderGroup(pv));
                     parEncs.add(new EncoderRef(0, 0));
                     perpEncs.add(new EncoderRef(0, 1));
@@ -236,16 +235,16 @@ public final class TuningOpModes {
                     parEncs.add(new EncoderRef(0, 0));
                     parEncs.add(new EncoderRef(0, 1));
                     perpEncs.add(new EncoderRef(0, 2));
-                } else if (td.localizer instanceof TwoDeadWheelLocalizerPurePursuit) {
-                    TwoDeadWheelLocalizerPurePursuit dl = (TwoDeadWheelLocalizerPurePursuit) td.localizer;
+                } else if (td.localizer instanceof TwoDeadWheelLocalizer) {
+                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) td.localizer;
                     encoderGroups.add(new LynxQuadratureEncoderGroup(
                             hardwareMap.getAll(LynxModule.class),
                             Arrays.asList(dl.par, dl.perp)
                     ));
                     parEncs.add(new EncoderRef(0, 0));
                     perpEncs.add(new EncoderRef(0, 1));
-                }  else if (td.localizer instanceof PinpointLocalizer) {
-                    PinpointView pv = makePinpointView((PinpointLocalizer) td.localizer);
+                }  else if (td.localizer instanceof PinpointLocalizerPurePursuit) {
+                    PinpointView pv = makePinpointView((PinpointLocalizerPurePursuit) td.localizer);
                     encoderGroups.add(new PinpointEncoderGroup(pv));
                     parEncs.add(new EncoderRef(0, 0));
                     perpEncs.add(new EncoderRef(0, 1));

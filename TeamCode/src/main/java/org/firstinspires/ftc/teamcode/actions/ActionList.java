@@ -19,6 +19,21 @@ public class ActionList {
     public Action setIntakePower(double power) {
         return new InstantAction(() -> bot.intakePower(power));
     }
+    public Action setTransferPower(double power) {
+        return new InstantAction(() -> bot.transferPower(power));
+    }
+    public Action stopDt() {
+        return new InstantAction(() -> bot.drive.setPowers());
+    }
+    public Action setTurretPos(int pos) {
+        return new InstantAction(() -> bot.setTurretPos(pos));
+    }
+    public Action openHardStop() {
+        return new InstantAction(() -> bot.hardstop.setPosition(Robot.HardstopOpen));
+    }
+    public Action closeHardStop() {
+        return new InstantAction(() -> bot.hardstop.setPosition(Robot.HardstopClose));
+    }
     public Action startCheckLoop() {
         return new InstantAction(() -> Robot.runCheckLoop = true);
     }

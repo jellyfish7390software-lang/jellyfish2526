@@ -23,6 +23,7 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 class PurePursuit(drive: MecanumDrivePurePursuit) {
     fun Pose2d.toPose(): Pose {
@@ -43,16 +44,18 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     @JvmField var targetPose = Pose()
 
-    @JvmField var searchRad: Double = 10.0
+    @JvmField var searchRad: Double = 8.0
     @JvmField var searchRadius = ParameterizedCircle(pose.vec(), searchRad)
 
     @JvmField var lastT = 0.0
 
     @JvmField var telemetryPacket = TelemetryPacket()
 
-    @JvmField var maxPower = 0.85
+    @JvmField var maxPower = 0.65
 
     @JvmField var atEnd = false
+
+    @JvmField var currentPath: Bezier? = null
 
 
     private var epsilon = 6e-5
@@ -79,8 +82,8 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
     }
 
     object Defaults {
-        val posTolerance = 1.0
-        val hTolerance = 5.0.toRadians()
+        val posTolerance = 3.5
+        val hTolerance = 10.0.toRadians()
     }
 
     @JvmField var kSQx = 0.06
@@ -88,7 +91,7 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     var xSquid: SquIDController = SquIDController(kSQx)
     var ySquid: SquIDController = SquIDController(kSQy)
-    @JvmField var hPID: PIDCoefficients = PIDCoefficients(0.6, 0.0,0.05)
+    @JvmField var hPID: PIDCoefficients = PIDCoefficients(0.6, 0.05,0.05)
 
     var hController = PIDController(hPID.p, hPID.i, hPID.d)
 
@@ -129,9 +132,18 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         val y = ySquid.compute(pose.y - this.pose.y)
 
         var rotX = x * cos(-heading) - y * sin(-heading)
-        val rotY = x * sin(-heading) + y * cos(-heading)
+        var rotY = x * sin(-heading) + y * cos(-heading)
 
         rotX *= 1.1
+
+        val minPower = 0.08  // Minimum power to overcome friction
+
+        if (abs(rotX) > 1e-3 && abs(rotX) < minPower) {
+            rotX = if (rotX > 0) minPower else -minPower
+        }
+        if (abs(rotY) > 1e-3 && abs(rotY) < minPower) {
+            rotY = if (rotY > 0) minPower else -minPower
+        }
 
         val hError = AngleUnit.normalizeRadians(pose.h - heading)
 
@@ -228,9 +240,11 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
     }
 
     fun calculateTargetPose(path: Bezier): ParametricPose {
-        // Reset lastT if starting a new path
-        if (lastT <= 0.0 || lastT >= 1.0) {
+        if (currentPath !== path) {
             lastT = 0.0
+            atEnd = false
+            currentPath = path
+            telemetryPacket.put("PATH_CHANGED", "New path detected")
         }
 
         targetList = calcIntersections(path, searchRadius)
@@ -241,13 +255,25 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
         // Candidate: nearest intersection ahead of lastT
         val candidate = targetList
             .filter { it.t >= lastT - 1e-6 }
-            .minByOrNull { Maths.dist(robotPose, it.toPose()) }
+            .minByOrNull { it.t }
 
         val targetPose = when {
-            targetList.isEmpty() -> path.end()
-            distToEnd <= 2.0 -> path.end()
-            candidate != null -> candidate
-            else -> path.end()
+            targetList.isEmpty() -> {
+                telemetryPacket.put("TARGET_FALLBACK", "No intersections found")
+                path.end()
+            }
+            distToEnd <= 2.0 -> {
+                telemetryPacket.put("TARGET_FALLBACK", "Within 2.0 of end")
+                path.end()
+            }
+            candidate != null -> {
+                telemetryPacket.put("TARGET_FALLBACK", "None - valid candidate")
+                candidate
+            }
+            else -> {
+                telemetryPacket.put("TARGET_FALLBACK", "No valid candidate ahead of lastT")
+                path.end()
+            }
         }
 
         // Adjust heading
@@ -295,18 +321,32 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     @JvmOverloads
     fun followPathSingle(path: Bezier, packet: TelemetryPacket, heading: Double? = null) {
+        val vel = localizer.update().linearVel
+        val speed = sqrt(vel.x.pow(2) + vel.y.pow(2))
+        val baseSearchRad = 8.0
+
+        val dynamicSearchRad = when {
+            speed > 35.0 -> baseSearchRad * 1.6   // Very fast: 12.8"
+            speed > 25.0 -> baseSearchRad * 1.4   // Fast: 11.2"
+            speed > 15.0 -> baseSearchRad * 1.2   // Medium: 9.6"
+            speed > 8.0 -> baseSearchRad           // Normal: 8.0"
+            speed > 3.0 -> baseSearchRad * 0.85   // Slow: 6.8"
+            else -> baseSearchRad * 0.7           // Very slow/settling: 5.6"
+        }
+
+        searchRad = dynamicSearchRad
+        searchRadius = ParameterizedCircle(pose.vec(), dynamicSearchRad)
+
         var targetPose = calculateTargetPose(path)
         path.draw(packet.fieldOverlay())
         telemetryPacket = packet
 
-        if (Maths.dist(pose, path.end().toPose()) < 12.0) atEnd = true
+        if (Maths.dist(pose, path.end().toPose()) < 8.0) atEnd = true
 
         telemetryPacket.put("TargetX", targetPose.x)
         telemetryPacket.put("TargetY", targetPose.y)
         telemetryPacket.put("TargetH", targetPose.h)
         telemetryPacket.put("TargetT", targetPose.t)
-
-        targetPose = calculateTargetPose(path)
 
         if (heading != null) {
             targetPose = ParametricPose(targetPose.x, targetPose.y, heading, targetPose.t)

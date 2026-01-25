@@ -44,6 +44,8 @@ public class ShooterTest extends LinearOpMode {
     public static double transferPower = 0.0;
     public static double turretPower = 0.0;
 
+    public static double TurretLimitLeft = 600, TurretLimitRight = -700;
+
     public double thisTicks = 0, lastTicks = 0;
 
     // LPF settings
@@ -128,16 +130,16 @@ public class ShooterTest extends LinearOpMode {
                 bot.transfer.setPower(power);
             }
 
-            transferPID.setPID(tP, tI, tD);
-            transferPower = transferPID.calculate(
-                    bot.transfer.getCurrentPosition(),
-                    (8192 / 3) * transferPos
-            );
-
+//            transferPID.setPID(tP, tI, tD);
+//            transferPower = transferPID.calculate(p;
+//                    bot.transfer.getCurrentPosition(),
+//                    (8192 / 3) * transferPos
+//            );
+//
             turretPID.setPID(turretP, turretI, turretD);
             turretPower = turretPID.calculate(
                     bot.turret.getCurrentPosition(),
-                    turretTarget
+                    turretTarget/Robot.ticksToDegrees
             );
             bot.turret.setPower(turretPower);
             bot.hood.setPosition(hoodPos);
@@ -147,6 +149,7 @@ public class ShooterTest extends LinearOpMode {
             telemetry.addData("Velocity: RPM", vel);
             telemetry.addData("Negatived", negatived);
             telemetry.addData("RawRPM", rawRPM);
+            telemetry.addData("dt", dt);
             telemetry.addData("Target Velocity", targetVel);
             telemetry.addData("Raw Ticks/Sec", rawTicksPerSec);
             telemetry.addData("Ticks", bot.shooter.getCurrentPosition());

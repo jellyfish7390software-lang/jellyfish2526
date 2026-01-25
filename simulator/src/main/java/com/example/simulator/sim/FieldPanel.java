@@ -20,7 +20,7 @@ public class FieldPanel extends JPanel {
 
     public FieldPanel(Robot robot) {
         try {
-            BufferedImage img = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource("field.png")));
+            BufferedImage img = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource("/field.png")));
 
             int size = img.getWidth();
             fieldImage = new BufferedImage(size, size, img.getType());

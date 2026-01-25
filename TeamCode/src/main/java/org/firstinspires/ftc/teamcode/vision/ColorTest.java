@@ -34,7 +34,7 @@ public class ColorTest extends LinearOpMode {
         VisionPortal color = new VisionPortal.Builder()
                 .addProcessor(colorSensor)
                 .setLiveViewContainerId(portals[0])
-                .setCamera(bot.ballCam)
+                .setCamera(bot.camera)
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
@@ -42,7 +42,7 @@ public class ColorTest extends LinearOpMode {
         VisionPortal tag = new VisionPortal.Builder()
                 .addProcessor(tagSensor)
                 .setLiveViewContainerId(portals[1])
-                .setCamera(bot.tagCam)
+                .setCamera(bot.camera)
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();

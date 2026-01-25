@@ -54,10 +54,13 @@ public class Maths {
         // scale so that maxComponent becomes exactly maxPower
         double scale = maxPower / maxComponent;
 
-        return new PoseVelocity2d(
-                new Vector2d(x * scale, y * scale),
-                h * scale
-        );
+        if (maxPower > 0) {
+            return new PoseVelocity2d(
+                    new Vector2d(x * scale, y * scale),
+                    h * scale
+            );
+        }
+        else return powers;
     }
 
     public static double clamp(double input, double leftBound, double rightBound) {

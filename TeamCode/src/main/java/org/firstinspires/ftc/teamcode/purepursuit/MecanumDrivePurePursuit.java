@@ -58,6 +58,7 @@ import org.firstinspires.ftc.teamcode.comp1.roadrunner.messages.DriveCommandMess
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.messages.MecanumLocalizerInputsMessage;
 import org.firstinspires.ftc.teamcode.comp1.roadrunner.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.purepursuit.math.PurePursuit;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -76,12 +77,12 @@ public final class MecanumDrivePurePursuit {
 
         // drive model parameters
         public double inPerTick = 0.0019813424;
-        public double lateralInPerTick = 0.0012448083828976227;
-        public double trackWidthTicks = 7254.575998588148;
+        public double lateralInPerTick = 0.0012818804931006434;
+        public double trackWidthTicks = 7427.5505018151;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.1473273093778955;
-        public double kV = 0.0002471530114834426;
+        public double kS = 1.1499466652042925;
+        public double kV = 0.00027646071631492065;
         public double kA = 0.000076;
 
         // path profile parameters (in inches)
@@ -263,7 +264,7 @@ public final class MecanumDrivePurePursuit {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new TwoDeadWheelLocalizerPurePursuit(hardwareMap, lazyImu.get(), PARAMS.inPerTick, pose);
+        localizer = new PinpointLocalizerPurePursuit(hardwareMap, PARAMS.inPerTick, pose);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }

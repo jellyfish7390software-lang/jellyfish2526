@@ -16,30 +16,28 @@ import org.firstinspires.ftc.teamcode.purepursuit.math.PurePursuit;
 @TeleOp
 @Config
 public class PurePursuitTuner extends LinearOpMode {
-    public Bezier curve = PurePursuit.builder
-            .addControlPoint(0, 0)
-            .addControlPoint(0, 36)
-            .addControlPoint(36, 0)
-            .addControlPoint(36,36)
-            .build();
-    public Bezier curve2 = PurePursuit.builder
-            .addControlPoint(36,36)
-            .addControlPoint(36,0)
-            .addControlPoint(0,36)
-            .addControlPoint(0,0)
-            .build();
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(), telemetry);
-        bot.setPose(new Pose());
+        bot.setPose(new Pose(0, 0, Math.toRadians(0)));
+
+        Bezier curve = PurePursuit.builder
+                .addControlPoint(0,0)
+                .addControlPoint(0,36)
+                .build();
+        Bezier curve2 = PurePursuit.builder
+                .addControlPoint(36,0)
+                .addControlPoint(0,0)
+                .build();
 
         waitForStart();
 
-        while (opModeIsActive() && !isStopRequested()) {
-            Actions.runBlocking(bot.followPathConstantHeading(curve, 0));
-            Actions.runBlocking(bot.followPathConstantHeading(curve2, 0));
-        }
+//        while (opModeIsActive() && !isStopRequested()) {
+//            Actions.runBlocking(bot.followPathConstantHeading(curve, 0));
+//            Actions.runBlocking(bot.followPathConstantHeading(curve2, 0));
+//        }
+        Actions.runBlocking(bot.followPathConstantHeading(curve, 0));
 
     }
 }

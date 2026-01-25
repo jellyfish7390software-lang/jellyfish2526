@@ -22,6 +22,7 @@ public class PurePursuitAction implements Action {
         purePursuit.lastT = 0.0;
         purePursuit.hasReachedDestination = false;
         purePursuit.atEnd = false;
+        purePursuit.currentPath = (Bezier) path;
     }
 
     public void setConstantHeading(double rad) {
