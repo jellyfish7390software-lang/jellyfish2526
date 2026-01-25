@@ -36,7 +36,7 @@ public class AprilTagAutoAlign extends LinearOpMode {
 
         VisionPortal tag = new VisionPortal.Builder()
                 .addProcessor(bot.tagProcessor)
-                .setCamera(bot.tagCam)
+                .setCamera(bot.camera)
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
