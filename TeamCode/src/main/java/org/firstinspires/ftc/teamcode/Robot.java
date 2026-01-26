@@ -81,6 +81,8 @@ public class Robot {
     public static double hP = 0.04, hI = 0, hD = 0;
     public double turretPos = 0;
 
+    public static double turretOffset = 0;
+
     public static double leftOffset = -1.5, rightOffset = 1;
     public PIDController hPID = new PIDController(hP, hI, hD);
     public static boolean atagAlign = false;

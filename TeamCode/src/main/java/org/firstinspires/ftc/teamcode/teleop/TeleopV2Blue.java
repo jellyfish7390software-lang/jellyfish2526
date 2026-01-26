@@ -19,7 +19,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @Config
 @TeleOp
 public class TeleopV2Blue extends LinearOpMode {
-    public static boolean shooterOn, closeMode, hardstop = false, autoAim = true;
+    public static boolean shooterOn, closeMode, hardstop = false, autoAim = false;
     public static boolean shooting = false;
     public static double hardstopPos = 0;
     public Pose2d pose = new Pose2d(0, 0, 0);
@@ -88,24 +88,25 @@ public class TeleopV2Blue extends LinearOpMode {
             if (gamepad2.aWasPressed()) {
                 autoAim = !autoAim;
             }
-            if (gamepad2.xWasPressed()) Robot.turretTarget+=25;
-            if (gamepad2.yWasPressed()) Robot.turretTarget-=25;
+            if (gamepad2.xWasPressed()) Robot.turretOffset+=25;
+            if (gamepad2.yWasPressed()) Robot.turretOffset-=25;
             if (autoAim) {
                 pose = bot.drive.localizer.getPose();
-                if (!tagSensor.getDetections().isEmpty()) {
+                if (!tagSensor.getDetections().isEmpty() && gamepad2.dpad_up) {
                     AprilTagDetection tag = tagSensor.getDetections().get(0);
                     if (tag.metadata != null && tag.id == 20) {
                         double bearing = tag.ftcPose.bearing;
                         double currentTurretDeg = bot.turretPos * Robot.ticksToDegrees;
                         double targetTurretDeg = currentTurretDeg + bearing;
-                        Robot.turretTarget += Maths.clamp(targetTurretDeg/Robot.ticksToDegrees, -630, 630);
+                        Robot.turretTarget -= Maths.clamp(targetTurretDeg / Robot.ticksToDegrees, -630, 630);
                     }
                 }
+
                 else {
                     double goalHeading = Math.atan2(-64 - pose.position.y, -67 - pose.position.x);
                     heading = goalHeading - pose.heading.toDouble();
                     heading = Math.atan2(Math.sin(heading), Math.cos(heading));
-                    Robot.turretTarget = Maths.clamp((Math.toDegrees(heading) / Robot.ticksToDegrees), -630, 630);
+                    Robot.turretTarget = Maths.clamp((Math.toDegrees(heading) / Robot.ticksToDegrees), -630, 630) + Robot.turretOffset;
                 }
             }
 
