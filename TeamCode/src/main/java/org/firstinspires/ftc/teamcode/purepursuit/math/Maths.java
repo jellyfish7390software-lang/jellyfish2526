@@ -31,6 +31,9 @@ public class Maths {
     public static double dist(Vector end, Vector start) {
         return Math.hypot(end.x - start.x, end.y - start.y);
     }
+    public static double dist(Vector2d end, Vector2d start) {
+        return Math.hypot(end.x - start.x, end.y - start.y);
+    }
 
     /**
      *Currently most used Maths function, finds distance between two points, as Poses

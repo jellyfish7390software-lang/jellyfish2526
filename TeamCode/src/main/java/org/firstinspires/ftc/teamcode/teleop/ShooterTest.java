@@ -76,6 +76,7 @@ public class ShooterTest extends LinearOpMode {
         lastTicks = bot.shooter.getCurrentPosition();
 
         while (opModeIsActive() && !isStopRequested()) {
+            bot.drive.updatePoseEstimate();
 
             thisTicks = bot.shooter.getCurrentPosition();
 
@@ -159,6 +160,9 @@ public class ShooterTest extends LinearOpMode {
             telemetry.addData("TurretPower", turretPower);
             telemetry.addData("Transfer Target", transferPos);
             telemetry.addData("TransferPos", bot.transfer.getCurrentPosition());
+            telemetry.addData("BotX", bot.drive.localizer.getPose().position.x);
+            telemetry.addData("BotY", bot.drive.localizer.getPose().position.y);
+            telemetry.addData("BotH", bot.drive.localizer.getPose().heading.toDouble());
             telemetry.update();
 
             lastTicks = thisTicks;

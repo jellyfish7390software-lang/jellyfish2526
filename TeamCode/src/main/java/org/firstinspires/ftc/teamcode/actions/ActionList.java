@@ -20,6 +20,9 @@ public class ActionList {
         return new SequentialAction(actions);
     }
 
+    public Action setHood(double pos) {
+        return new InstantAction(() -> bot.hood.setPosition(pos));
+    }
     public Action setIntakePower(double power) {
         return new InstantAction(() -> bot.intakePower(power));
     }

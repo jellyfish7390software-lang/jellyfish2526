@@ -21,6 +21,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class TeleopV2Red extends LinearOpMode {
     public static boolean shooterOn, closeMode, hardstop = false, autoAim = false;
     public static boolean shooting = false;
+    public static boolean regression = true;
     public static double hardstopPos = 0;
     public Pose2d pose = new Pose2d(0, 0, 0);
     public double heading = 0, error = 0;
@@ -33,6 +34,7 @@ public class TeleopV2Red extends LinearOpMode {
         shooterOn = false;
         closeMode = true;
         bot.hardstop.setPosition(Robot.HardstopClose);
+        bot.setTelemetry(telemetry);
 
         AprilTagProcessor tagSensor = AprilTagProcessor.easyCreateWithDefaults();
 
@@ -78,10 +80,23 @@ public class TeleopV2Red extends LinearOpMode {
 
 
             if (shooterOn) {
-                bot.setShooterVelocity(closeMode ? Robot.closeRPM : Robot.farRPM);
+                if (closeMode) {
+                    bot.hood.setPosition(0.72);
+                    if (regression) {
+                        double distToGoal = Maths.dist(Robot.redGoalClose, bot.drive.localizer.getPose().position);
+                        bot.setShooterVelocity((int) bot.regressShooter(Math.min(distToGoal, 110)));
+                    }
+                    else bot.setShooterVelocity(Robot.closeRPM);
+                }
+                else {
+                    bot.hood.setPosition(0.775);
+                    bot.setShooterVelocity(Robot.farRPM);
+                }
             } else {
                 bot.setShooterVelocity(0);
             }
+
+            if (gamepad2.dpadUpWasPressed()) regression = !regression;
 
             if (gamepad2.bWasPressed()) {
                 bot.drive.localizer.setPose(new Pose2d(72 - (8.75 + 0.65), -72 + 8.0625, Math.toRadians(270)));
@@ -94,7 +109,7 @@ public class TeleopV2Red extends LinearOpMode {
             if (gamepad2.yWasPressed()) Robot.turretOffset-=25;
             if (autoAim) {
                 pose = bot.drive.localizer.getPose();
-                if (!tagSensor.getDetections().isEmpty() && gamepad2.dpad_up) {
+                if (!tagSensor.getDetections().isEmpty() && gamepad2.dpad_down) {
                     AprilTagDetection tag = tagSensor.getDetections().get(0);
                     if (tag.metadata != null && tag.id == 24) {
                         double bearing = tag.ftcPose.bearing;
@@ -105,8 +120,8 @@ public class TeleopV2Red extends LinearOpMode {
                 }
                 else {
                     double goalHeading;
-                    if (closeMode) goalHeading = Math.atan2(64 - pose.position.y, -54 - pose.position.x);
-                    else goalHeading = Math.atan2(64 - pose.position.y, -48 - pose.position.x);
+                    if (closeMode) goalHeading = Math.atan2(Robot.redGoalClose.y - pose.position.y, Robot.redGoalClose.x - pose.position.x);
+                    else goalHeading = Math.atan2(Robot.redGoalFar.y - pose.position.y, Robot.redGoalFar.x - pose.position.x);
                     heading = goalHeading - pose.heading.toDouble();
                     heading = Math.atan2(Math.sin(heading), Math.cos(heading));
                     Robot.turretTarget = Maths.clamp((Math.toDegrees(heading) / Robot.ticksToDegrees), -630, 630) + Robot.turretOffset;
@@ -138,6 +153,7 @@ public class TeleopV2Red extends LinearOpMode {
             telemetry.addData("BotH", pose.heading.toDouble());
             telemetry.addData("HeadingError", error);
             telemetry.addData("Heading", heading);
+            telemetry.addData("Offset", Robot.turretOffset);
             telemetry.update();
 
         }

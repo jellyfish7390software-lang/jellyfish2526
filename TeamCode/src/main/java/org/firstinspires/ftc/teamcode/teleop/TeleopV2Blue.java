@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.purepursuit.math.Maths;
 import org.firstinspires.ftc.teamcode.purepursuit.math.Pose;
+import org.firstinspires.ftc.teamcode.purepursuit.math.Vector;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -22,6 +23,7 @@ public class TeleopV2Blue extends LinearOpMode {
     public static boolean shooterOn, closeMode, hardstop = false, autoAim = false;
     public static boolean shooting = false;
     public static double hardstopPos = 0;
+    public static boolean regression = true;
     public Pose2d pose = new Pose2d(0, 0, 0);
     public double heading = 0, error = 0;
 
@@ -33,6 +35,7 @@ public class TeleopV2Blue extends LinearOpMode {
         shooterOn = false;
         closeMode = true;
         bot.hardstop.setPosition(Robot.HardstopClose);
+        bot.setTelemetry(telemetry);
 
         AprilTagProcessor tagSensor = AprilTagProcessor.easyCreateWithDefaults();
 
@@ -42,6 +45,7 @@ public class TeleopV2Blue extends LinearOpMode {
                 .setCameraResolution(new Size(320, 240))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
+        tagPortal.stopStreaming();
 
 
         waitForStart();
@@ -76,7 +80,18 @@ public class TeleopV2Blue extends LinearOpMode {
 
 
             if (shooterOn) {
-                bot.setShooterVelocity(closeMode ? Robot.closeRPM : Robot.farRPM);
+                if (closeMode) {
+                    bot.hood.setPosition(0.72);
+                    if (regression) {
+                    double distToGoal = Maths.dist(Robot.blueGoalClose, bot.drive.localizer.getPose().position);
+                    bot.setShooterVelocity((int) bot.regressShooter(Math.min(distToGoal,110)) + 65);
+                    }
+                    else bot.setShooterVelocity(Robot.closeRPM);
+                }
+                else {
+                    bot.hood.setPosition(0.775);
+                    bot.setShooterVelocity(Robot.farRPM);
+                }
             } else {
                 bot.setShooterVelocity(0);
             }
@@ -84,6 +99,7 @@ public class TeleopV2Blue extends LinearOpMode {
             if (gamepad2.bWasPressed()) {
                 bot.drive.localizer.setPose(new Pose2d(72 - (8.75), 72 - 8.0625, Math.toRadians(90)));
             }
+            if (gamepad2.dpadDownWasPressed()) regression = !regression;
 
             if (gamepad2.aWasPressed()) {
                 autoAim = !autoAim;
@@ -92,7 +108,7 @@ public class TeleopV2Blue extends LinearOpMode {
             if (gamepad2.yWasPressed()) Robot.turretOffset-=25;
             if (autoAim) {
                 pose = bot.drive.localizer.getPose();
-                if (!tagSensor.getDetections().isEmpty() && gamepad2.dpad_up) {
+                if (!tagSensor.getDetections().isEmpty() && gamepad2.dpad_down) {
                     AprilTagDetection tag = tagSensor.getDetections().get(0);
                     if (tag.metadata != null && tag.id == 20) {
                         double bearing = tag.ftcPose.bearing;
@@ -103,7 +119,9 @@ public class TeleopV2Blue extends LinearOpMode {
                 }
 
                 else {
-                    double goalHeading = Math.atan2(-64 - pose.position.y, -67 - pose.position.x);
+                    double goalHeading;
+                    if (!closeMode)  goalHeading = Math.atan2(Robot.blueGoalFar.y - pose.position.y, Robot.blueGoalFar.x - pose.position.x);
+                    else goalHeading = Math.atan2(Robot.blueGoalClose.y - pose.position.y, Robot.blueGoalClose.x - pose.position.x);
                     heading = goalHeading - pose.heading.toDouble();
                     heading = Math.atan2(Math.sin(heading), Math.cos(heading));
                     Robot.turretTarget = Maths.clamp((Math.toDegrees(heading) / Robot.ticksToDegrees), -630, 630) + Robot.turretOffset;
@@ -135,6 +153,7 @@ public class TeleopV2Blue extends LinearOpMode {
             telemetry.addData("BotH", pose.heading.toDouble());
             telemetry.addData("HeadingError", error);
             telemetry.addData("Heading", heading);
+            telemetry.addData("Offset", Robot.turretOffset);
             telemetry.update();
 
         }

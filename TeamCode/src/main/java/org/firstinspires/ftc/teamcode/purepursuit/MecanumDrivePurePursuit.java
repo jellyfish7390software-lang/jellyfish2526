@@ -82,22 +82,22 @@ public final class MecanumDrivePurePursuit {
 
         // feedforward parameters (in tick units)
         public double kS = 1.1499466652042925;
-        public double kV = 0.00027646071631492065;
-        public double kA = 0.000076;
+        public double kV = 0.0004;
+        public double kA = 0.00015;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 60;
-        public double minProfileAccel = -50;
-        public double maxProfileAccel = 60;
+        public double maxWheelVel = 80;
+        public double minProfileAccel = -60;
+        public double maxProfileAccel = 70;
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI; // shared with path
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 6;
-        public double lateralGain = 4;
-        public double headingGain = 4; // shared with turn
+        public double axialGain = 4;
+        public double lateralGain = 5;
+        public double headingGain = 6; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;

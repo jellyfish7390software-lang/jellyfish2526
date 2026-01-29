@@ -69,7 +69,7 @@ public class Robot {
 
     public static boolean shooting = false;
 
-    public static double p = 0.02, i = 0, d = 0, f = 0.000205;
+    public static double p = 0.003, i = 0, d = 0, f = 0.000205;
     public static double lastP = p, lastI = i, lastD = d, lastF = f;
 
     public static double FILTER_CUTOFF = 1.5;   // Hz (adjustable in dashboard)
@@ -80,6 +80,8 @@ public class Robot {
     public static double tP = 0.01, tI = 0, tD = 0;
     public static double hP = 0.04, hI = 0, hD = 0;
     public double turretPos = 0;
+
+    public static double hoodMax = 0.82, hoodMin = 0.73;
 
     public static double turretOffset = 0;
 
@@ -114,8 +116,8 @@ public class Robot {
     public static Vector2d BLUE_GOAL_TAG = new Vector2d(-58.27, -55.63);
 
     public static double ticksToDegrees = 90.0/500.0;
-    public static int closeRPM = 2450;
-    public static int farRPM = 3400;
+    public static int closeRPM = 2675;
+    public static int farRPM = 3700;
     public static double HardstopOpen = 0.97;
     public static double HardstopClose = 0.8;
 
@@ -140,8 +142,12 @@ public class Robot {
     private final double[] timeHistory = new double[VELOCITY_HISTORY_SIZE];
     private int historyIdx = 0;
 
+    public static Vector2d blueGoalClose = new Vector2d(-67, -64);
+    public static Vector2d blueGoalFar = new Vector2d(-86, -64);
 
 
+    public static Vector2d redGoalClose = new Vector2d(-67, 64);
+    public static Vector2d redGoalFar = new Vector2d(-86, 64);
 
     public ElapsedTime timer = new ElapsedTime();
 
@@ -190,10 +196,15 @@ public class Robot {
 
         lastTicks = shooter.getCurrentPosition();
         turretPos = turret.getCurrentPosition();
+        hood.setPosition(0.75);
 
         dt = timer.seconds();
         shooterTimer.reset();
 
+    }
+
+    public void setTelemetry(Telemetry telemetry) {
+        this.telemetry = telemetry;
     }
 
 
@@ -250,7 +261,8 @@ public class Robot {
         double alpha = 0.15; // tune 0.1–0.25
         filteredTicksPerSec += alpha * (rawTicksPerSec - filteredTicksPerSec);
 
-        rpm = filteredTicksPerSec * 60.0 / ticksPerRev;
+        if (!closeMode) rpm = rawTicksPerSec * 60.0 / ticksPerRev;
+        else rpm = filteredTicksPerSec * 60.0 / ticksPerRev;
 
         // --- Shooter PID ---
         double shooterPower = shooterPID.calculate(rpm, targetVel);
@@ -267,13 +279,15 @@ public class Robot {
         intakePower(intakePower);
 
         turretPID.setPID(tP, tI, tD);
-        turret.setPower(turretPID.calculate(turretPos, turretTarget));
+        turret.setPower(Math.min(turretPID.calculate(turretPos, turretTarget), 0.8));
 
         lastTicks = thisTicks;
     }
 
 
-
+    public double regressShooter(double distanceToGoal) {
+        return 0.637786*Math.pow(distanceToGoal, 2) + -90.66597*distanceToGoal + 5822.03677;
+    }
 
 
     public class ScoringLoop implements Action {
@@ -334,6 +348,10 @@ public class Robot {
             turret.setPower(turretPID.calculate(turretPos, turretTarget));
 
             lastTicks = thisTicks;
+
+            telemetry.addData("Filtered Rpm", rpm);
+            telemetry.addData("TargetVel", targetVel);
+            telemetry.update();
 
             return Robot.runScoringLoop;
         }

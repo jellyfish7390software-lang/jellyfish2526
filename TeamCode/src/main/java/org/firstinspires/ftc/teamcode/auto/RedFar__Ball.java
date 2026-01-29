@@ -27,30 +27,7 @@ import org.firstinspires.ftc.teamcode.purepursuit.math.PurePursuit;
 @Autonomous
 @Config
 public class RedFar__Ball extends LinearOpMode {
-    public Bezier firstCycleIntake = new BezierBuilder()
-            .addControlPoint(63.9375, 15.25)
-            .addControlPoint(43.1, 10.9)
-            .addControlPoint(29.4, 28.8)
-            .addControlPoint(35.7, 61.7)
-            .build();
-    public Bezier firstCycleScore = new BezierBuilder()
-            .addControlPoint(35.7, 61.7)
-            .addControlPoint(34, 30.6)
-            .addControlPoint(42, 12)
-            .addControlPoint(63.9375, 15.25)
-            .build();
-    public Bezier secondCycleIntake = new BezierBuilder()
-            .addControlPoint(63.9375, 15.25)
-            .addControlPoint(64.5, 45.2)
-            .addControlPoint(65.9, 58.6)
-            .addControlPoint(56.3, 59.8)
-            .build();
-    public Bezier secondCycleScore = new BezierBuilder()
-            .addControlPoint(56.3, 59.8)
-            .addControlPoint(65.9, 58.6)
-            .addControlPoint(64.5, 45.2)
-            .addControlPoint(63.9375, 15.25)
-            .build();
+
     @Override
     public void runOpMode() throws InterruptedException {
         Robot bot = new Robot(hardwareMap);
@@ -111,20 +88,22 @@ public class RedFar__Ball extends LinearOpMode {
                         */
 
         Action driveAction = bot.drive.actionBuilder(new Pose2d(72 - 8.0625, 24 - 8.75, Math.toRadians(90)))
-                .afterTime(0, new SequentialAction(a.setTurretPos(380), a.openHardStop(), a.setShooterVelocity(3600)))
-                .waitSeconds(5)
-                .afterTime(0, a.combine(a.setIntakePower(1), a.setTransferPower(1)))
-                .waitSeconds(1.5)
-                .afterTime(0, a.closeHardStop())
-
-
+                .setTangent(Math.toRadians(180))
+                .splineToLinearHeading(new Pose2d(36, 24, Math.toRadians(90)), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(36, 64), Math.toRadians(90))
                 .waitSeconds(0.5)
-                .afterTime(0, a.combine(a.setTransferPower(0), a.setIntakePower(0)))
-                .splineToConstantHeading(new Vector2d(72 - 8.0625, 24 - 8.75), Math.toRadians(270))
-                .afterTime(0, a.openHardStop())
+                .strafeToConstantHeading(new Vector2d(56, 10))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(110))
+                .splineTo(new Vector2d(50, 64), Math.toRadians(180))
                 .waitSeconds(0.5)
-                .afterTime(0, a.combine(a.setTransferPower(1), a.setIntakePower(1)))
+                .strafeToLinearHeading(new Vector2d(56, 10), Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(110))
+                .splineTo(new Vector2d(50, 64), Math.toRadians(180))
+                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(56, 10), Math.toRadians(90))
+
 
 
 

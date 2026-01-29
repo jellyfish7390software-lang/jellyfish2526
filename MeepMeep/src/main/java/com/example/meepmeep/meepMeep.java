@@ -13,31 +13,39 @@ public class meepMeep {
         MeepMeep meepMeep = new MeepMeep(400);
 
         // TOP bot (Blue Side))
-        Pose2d beginPoseTop = new Pose2d(-56, 56, Math.toRadians(144));
+        Pose2d beginPoseTop = new Pose2d(-58, 39.5, Math.toRadians(0));
         RoadRunnerBotEntity botTop = new DefaultBotBuilder(meepMeep)
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(90), 16)
                 .build();
         botTop.runAction(botTop.getDrive().actionBuilder(beginPoseTop)
-                .setReversed(false)
-                .strafeTo(new Vector2d(-31, 31))
-                .waitSeconds(0.5)
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-12, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(1)
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                .waitSeconds(1)
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(12, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(1)
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
-                .waitSeconds(1)
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(90)), Math.toRadians(90))
-                .waitSeconds(1)
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-24, 24, Math.toRadians(135)), Math.toRadians(135))
+                        .setReversed(false)
+                        .strafeToLinearHeading(new Vector2d(-27, 22), Math.toRadians(40))
+                        .waitSeconds(0.75)
+                        .setTangent(Math.toRadians(-50))
+                        .splineToLinearHeading(new Pose2d(16, 58, Math.toRadians(90)), Math.toRadians(90))
+                        .waitSeconds(0.5)
+                        .setTangent(Math.toRadians(270))
+                        .splineToLinearHeading(new Pose2d(-27, 22, Math.toRadians(40)), Math.toRadians(160))
+                        .waitSeconds(0.75)
+                        .setTangent(Math.toRadians(-50))
+                        .splineToLinearHeading(new Pose2d(10, 66, Math.toRadians(135)), Math.toRadians(135))
+                        .waitSeconds(3)
+                        .setTangent(Math.toRadians(290))
+                        .splineToLinearHeading(new Pose2d(-27, 22, Math.toRadians(40)), Math.toRadians(160))
+                        .waitSeconds(0.75)
+                        .setTangent(Math.toRadians(0))
+                        .splineToLinearHeading(new Pose2d(40, 58, Math.toRadians(90)), Math.toRadians(90))
+                        .waitSeconds(0.5)
+                        .setTangent(Math.toRadians(270))
+                        .splineToLinearHeading(new Pose2d(-27, 22, Math.toRadians(40)), Math.toRadians(160))
+                        .waitSeconds(0.75)
+                        .setTangent(Math.toRadians(-30))
+                        .splineToLinearHeading(new Pose2d(-12, 58, Math.toRadians(90)), Math.toRadians(90))
+                        .waitSeconds(0.5)
+                        .setTangent(Math.toRadians(270))
+                        .splineToLinearHeading(new Pose2d(-27, 22, Math.toRadians(40)), Math.toRadians(160))
+
+
                 .build());
 
         // BOTTOM bot (Red Side)
@@ -73,7 +81,8 @@ public class meepMeep {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(botTop)
-                .addEntity(botBottom)
+                .setAxesInterval(72)
+                .removeEntity(MeepMeep.getDEFAULT_AXES_ENTITY())
                 .start();
     }
 }

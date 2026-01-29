@@ -68,6 +68,7 @@ public class meepMeepFar {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(botTop)
+                .removeEntity(MeepMeep.getDEFAULT_AXES_ENTITY())
                 .start();
     }
 }
