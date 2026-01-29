@@ -44,7 +44,7 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
 
     @JvmField var targetPose = Pose()
 
-    @JvmField var searchRad: Double = 8.0
+    @JvmField var searchRad: Double = 6.0
     @JvmField var searchRadius = ParameterizedCircle(pose.vec(), searchRad)
 
     @JvmField var lastT = 0.0
@@ -323,19 +323,19 @@ class PurePursuit(drive: MecanumDrivePurePursuit) {
     fun followPathSingle(path: Bezier, packet: TelemetryPacket, heading: Double? = null) {
         val vel = localizer.update().linearVel
         val speed = sqrt(vel.x.pow(2) + vel.y.pow(2))
-        val baseSearchRad = 8.0
-
-        val dynamicSearchRad = when {
-            speed > 35.0 -> baseSearchRad * 1.6   // Very fast: 12.8"
-            speed > 25.0 -> baseSearchRad * 1.4   // Fast: 11.2"
-            speed > 15.0 -> baseSearchRad * 1.2   // Medium: 9.6"
-            speed > 8.0 -> baseSearchRad           // Normal: 8.0"
-            speed > 3.0 -> baseSearchRad * 0.85   // Slow: 6.8"
-            else -> baseSearchRad * 0.7           // Very slow/settling: 5.6"
-        }
-
-        searchRad = dynamicSearchRad
-        searchRadius = ParameterizedCircle(pose.vec(), dynamicSearchRad)
+//        val baseSearchRad = 8.0
+//
+//        val dynamicSearchRad = when {
+//            speed > 35.0 -> baseSearchRad * 1.6   // Very fast: 12.8"
+//            speed > 25.0 -> baseSearchRad * 1.4   // Fast: 11.2"
+//            speed > 15.0 -> baseSearchRad * 1.2   // Medium: 9.6"
+//            speed > 8.0 -> baseSearchRad           // Normal: 8.0"
+//            speed > 3.0 -> baseSearchRad * 0.85   // Slow: 6.8"
+//            else -> baseSearchRad * 0.7           // Very slow/settling: 5.6"
+//        }
+//
+//        searchRad = dynamicSearchRad
+//        searchRadius = ParameterizedCircle(pose.vec(), dynamicSearchRad)
 
         var targetPose = calculateTargetPose(path)
         path.draw(packet.fieldOverlay())

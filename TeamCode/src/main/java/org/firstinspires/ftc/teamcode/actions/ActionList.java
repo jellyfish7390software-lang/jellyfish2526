@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.actions;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
@@ -14,6 +15,9 @@ public class ActionList {
 
     public Action setShooterVelocity(int vel) {
         return new InstantAction(() -> bot.setShooterVelocity(vel));
+    }
+    public SequentialAction combine(Action... actions) {
+        return new SequentialAction(actions);
     }
 
     public Action setIntakePower(double power) {

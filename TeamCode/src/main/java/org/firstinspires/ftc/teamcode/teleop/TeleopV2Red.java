@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.util.Size;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -10,11 +12,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.purepursuit.math.Maths;
 import org.firstinspires.ftc.teamcode.purepursuit.math.Pose;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 @Config
 @TeleOp
 public class TeleopV2Red extends LinearOpMode {
-    public static boolean shooterOn, closeMode, hardstop = false, autoAim = true;
+    public static boolean shooterOn, closeMode, hardstop = false, autoAim = false;
     public static boolean shooting = false;
     public static double hardstopPos = 0;
     public Pose2d pose = new Pose2d(0, 0, 0);
@@ -28,6 +33,17 @@ public class TeleopV2Red extends LinearOpMode {
         shooterOn = false;
         closeMode = true;
         bot.hardstop.setPosition(Robot.HardstopClose);
+
+        AprilTagProcessor tagSensor = AprilTagProcessor.easyCreateWithDefaults();
+
+        VisionPortal tagPortal = new VisionPortal.Builder()
+                .addProcessor(tagSensor)
+                .setCamera(bot.camera)
+                .setCameraResolution(new Size(320, 240))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .build();
+
+        tagPortal.stopStreaming();
 
 
         waitForStart();
@@ -74,14 +90,27 @@ public class TeleopV2Red extends LinearOpMode {
             if (gamepad2.aWasPressed()) {
                 autoAim = !autoAim;
             }
-            if (gamepad2.xWasPressed()) Robot.turretTarget+=25;
-            if (gamepad2.yWasPressed()) Robot.turretTarget-=25;
+            if (gamepad2.xWasPressed()) Robot.turretOffset+=25;
+            if (gamepad2.yWasPressed()) Robot.turretOffset-=25;
             if (autoAim) {
                 pose = bot.drive.localizer.getPose();
-                double goalHeading = Math.atan2(64 - pose.position.y, -65 - pose.position.x);
-                heading = goalHeading - pose.heading.toDouble();
-                heading = Math.atan2(Math.sin(heading), Math.cos(heading));
-                Robot.turretTarget = Maths.clamp((Math.toDegrees(heading)/Robot.ticksToDegrees), -630, 630);
+                if (!tagSensor.getDetections().isEmpty() && gamepad2.dpad_up) {
+                    AprilTagDetection tag = tagSensor.getDetections().get(0);
+                    if (tag.metadata != null && tag.id == 24) {
+                        double bearing = tag.ftcPose.bearing;
+                        double currentTurretDeg = bot.turretPos * Robot.ticksToDegrees;
+                        double targetTurretDeg = currentTurretDeg + bearing;
+                        Robot.turretTarget += Maths.clamp(targetTurretDeg/Robot.ticksToDegrees, -630, 630);
+                    }
+                }
+                else {
+                    double goalHeading;
+                    if (closeMode) goalHeading = Math.atan2(64 - pose.position.y, -54 - pose.position.x);
+                    else goalHeading = Math.atan2(64 - pose.position.y, -48 - pose.position.x);
+                    heading = goalHeading - pose.heading.toDouble();
+                    heading = Math.atan2(Math.sin(heading), Math.cos(heading));
+                    Robot.turretTarget = Maths.clamp((Math.toDegrees(heading) / Robot.ticksToDegrees), -630, 630) + Robot.turretOffset;
+                }
             }
 
             if (gamepad1.right_trigger > 0) {

@@ -13,31 +13,27 @@ public class meepMeepFar {
         MeepMeep meepMeep = new MeepMeep(400);
 
         // TOP bot (Blue Side))
-        Pose2d beginPoseTop = new Pose2d(60, 24, Math.toRadians(144));
+        Pose2d beginPoseTop = new Pose2d(72 - 8.0625, 24 - 8.75, Math.toRadians(90));
         RoadRunnerBotEntity botTop = new DefaultBotBuilder(meepMeep)
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(90), 16)
+                .setConstraints(80, 60, Math.toRadians(180), Math.toRadians(90), 16)
                 .build();
         botTop.runAction(botTop.getDrive().actionBuilder(beginPoseTop)
-                .setReversed(false)
-                .strafeToLinearHeading(new Vector2d(56, 0), Math.toRadians(153))
+                        .setTangent(Math.toRadians(180))
+                .splineToLinearHeading(new Pose2d(36, 24, Math.toRadians(90)), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(36, 64), Math.toRadians(90))
                 .waitSeconds(0.5)
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(38, 38), Math.toRadians(90))
+                .strafeToConstantHeading(new Vector2d(56, 10))
                 .waitSeconds(1)
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(56, 0), Math.toRadians(153))
+                .setTangent(Math.toRadians(110))
+                .splineTo(new Vector2d(50, 64), Math.toRadians(180))
+                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(56, 10), Math.toRadians(90))
                 .waitSeconds(1)
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(90))
-                .waitSeconds(1)
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(56, 0), Math.toRadians(153))
-                .waitSeconds(1)
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(90))
-                .waitSeconds(1)
-                .setReversed(true)
-                .strafeToLinearHeading(new Vector2d(56, 0), Math.toRadians(153))
+                .setTangent(Math.toRadians(110))
+                .splineTo(new Vector2d(50, 64), Math.toRadians(180))
+                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(56, 10), Math.toRadians(90))
+
                 .build());
 
         // BOTTOM bot (Red Side)
@@ -72,7 +68,6 @@ public class meepMeepFar {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(botTop)
-                .addEntity(botBottom)
                 .start();
     }
 }
